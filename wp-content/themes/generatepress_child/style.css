@@ -89,7 +89,6 @@ a:active {
 
 .home .header-wrap .site-header {
     background: rgba(255, 255, 255, 0.9);
-    -webkit-backdrop-filter: blur(5px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
@@ -97,9 +96,26 @@ a:active {
     padding: 7px;
 }
 
-.oa-links-element .wc-block-mini-cart__badge{
-        font-size: 9px;
-        background-color: transparent !important;
+.oa-links-element .wc-block-mini-cart__badge,
+.header-wrap .wc-block-mini-cart__badge,
+.wc-block-mini-cart__badge {
+    font-size: 9px;
+    line-height: 1;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background-color: var(--contrast) !important;
+    color: #fff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    left: 100% !important;
+    margin-left: -4px !important;
+    transform: translateY(-50%) !important;
 }
 
 table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__wrap>*{
@@ -122,6 +138,8 @@ table.wc-block-cart-items .wc-block-cart-items__row .wc-block-cart-item__wrap>*{
 :root {
     --radius-size: 5px;
     --shadow: 0px 10px 20px 0px rgb(0 0 0 / 25%);
+    --drawer-width: 480px;
+    --neg-drawer-width: calc(var(--drawer-width) * -1);
 }
 
 html,
@@ -129,7 +147,50 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-font-smoothing: antialiased;
     -o-font-smoothing: antialiased;
+}
+
+/* overflow-x:hidden on html/body clips the mini-cart drawer (position:fixed,
+   starts off-screen) and breaks cart/checkout container queries. Clip page
+   content instead, and keep the header/drawer outside that box. */
+#page {
     overflow-x: hidden;
+}
+
+/* Fallback if core block-library CSS is still delayed/cached. */
+.entry-content .wp-block-columns,
+.wp-block-columns.is-layout-flex,
+.wp-block-columns-is-layout-flex {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 2em;
+    box-sizing: border-box;
+}
+
+.entry-content .wp-block-column,
+.wp-block-columns > .wp-block-column {
+    flex-grow: 1;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+@media (min-width: 782px) {
+    .entry-content .wp-block-columns:not(.is-not-stacked-on-mobile),
+    .wp-block-columns.is-layout-flex {
+        flex-wrap: nowrap;
+    }
+
+    .entry-content .wp-block-column,
+    .wp-block-columns > .wp-block-column {
+        flex-basis: 0;
+        flex-grow: 1;
+    }
+}
+
+@media (max-width: 781px) {
+    .wp-block-columns:not(.is-not-stacked-on-mobile) {
+        flex-direction: column;
+    }
 }
 
 input[type=email],
@@ -155,7 +216,7 @@ body input[type="submit"],
 body a.button,
 body button.button,
 body .wp-block-button .wp-block-button__link,
-body .wc-block-components-button:not(.is-link) .wc-block-components-button__text,
+body .wc-block-components-button:not(.is-link):not(.wc-block-components-quantity-selector__button),
 body.woocommerce a.button {
     padding: 15px 30px;
     border-width: inherit;
@@ -163,6 +224,27 @@ body.woocommerce a.button {
     -webkit-border-radius: var(--radius-size) !important;
     -moz-border-radius: var(--radius-size) !important;
     border-radius: var(--radius-size) !important;
+}
+
+/* Hide WooCommerce's spinning cart icon on Add to cart. */
+.woocommerce a.button.loading,
+.woocommerce button.button.loading,
+.woocommerce input.button.loading,
+.single_add_to_cart_button.loading,
+a.add_to_cart_button.loading {
+    opacity: 1 !important;
+    padding-right: inherit !important;
+    pointer-events: none;
+}
+
+.woocommerce a.button.loading::after,
+.woocommerce button.button.loading::after,
+.woocommerce input.button.loading::after,
+.single_add_to_cart_button.loading::after,
+a.add_to_cart_button.loading::after {
+    display: none !important;
+    content: none !important;
+    animation: none !important;
 }
 
 ::-webkit-input-placeholder {
@@ -182,8 +264,14 @@ body.woocommerce a.button {
     text-transform: inherit;
 }
 
-p:empty {
-    display: none !important
+body:not(.woocommerce-cart):not(.woocommerce-checkout) p:empty {
+    display: none !important;
+}
+
+.wc-block-mini-cart p:empty,
+.wp-block-woocommerce-mini-cart-contents p:empty,
+.wc-block-components-drawer p:empty {
+    display: revert !important;
 }
 
 p:last-child {
@@ -200,7 +288,7 @@ a, button, input {
     display: none;
 }
 
-table {
+body:not(.woocommerce-cart):not(.woocommerce-checkout) table:not(.wc-block-cart-items):not([class*="wc-block"]) {
     border: 1px solid #000;
 }
 
@@ -256,9 +344,7 @@ table {
     position: relative;                          /* anchor pseudo */
     background: rgba(255,255,255,0.4);
     border-bottom: 1px solid rgba(255,255,255,0.15);
-    /* no backdrop-filter here */
-    /* no will-change here */
-    isolation: isolate;                          /* safer stacking */
+    /* no backdrop-filter / isolation here — they trap the mini-cart drawer */
 }
 
 .header-wrap .site-header::before {
@@ -273,6 +359,87 @@ table {
 
 /* keep header content above the blur layer */
 .header-wrap .site-header > * { position: relative; z-index: 1; }
+
+/*
+ * WooCommerce 11 mini-cart overlay is printed in the footer (not inside the
+ * header). Woo sets --drawer-width via wp_add_inline_style during render —
+ * after wp_head — so the panel is 0px wide and only the close X shows.
+ */
+.wc-block-components-drawer__screen-overlay {
+    z-index: 100010 !important;
+}
+
+.wc-block-mini-cart__drawer.wc-block-components-drawer {
+    width: min(var(--drawer-width, 480px), 100vw) !important;
+    max-width: 100vw;
+    height: 100%;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+/* 100dvh overflows the visible drawer; keep the panel inside the viewport. */
+.wc-block-mini-cart__drawer .wc-block-components-drawer__content {
+    height: 100% !important;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.wc-block-mini-cart__template-part,
+.wp-block-woocommerce-mini-cart-contents {
+    flex: 1 1 auto;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    /* Woo sets padding:0 on this selector later — keep bottom inset. */
+    padding: 0 0 24px !important;
+}
+
+.wc-block-components-drawer__close-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 0;
+    z-index: 2;
+}
+
+body .wc-block-components-drawer__close.wc-block-components-button {
+    padding: 8px !important;
+    margin: 0 !important;
+    min-width: auto;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    color: inherit;
+}
+
+h2.wc-block-mini-cart__title {
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+    padding-right: 48px;
+}
+
+.wp-block-woocommerce-filled-mini-cart-contents-block,
+.wp-block-woocommerce-empty-mini-cart-contents-block {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto !important;
+}
+
+.wc-block-mini-cart__footer,
+.wp-block-woocommerce-mini-cart-footer-block {
+    padding: 16px 16px 0 !important;
+    margin-bottom: 0;
+}
+
+.wp-block-woocommerce-empty-mini-cart-contents-block {
+    padding-bottom: 0;
+    box-sizing: border-box;
+}
 
 /* STICKY/CLONE header: no heavy blur */
 .header-wrap .site-header.is_stuck::before,
@@ -382,8 +549,8 @@ table .icon-check {
     vertical-align: middle;
 }
 
-table th,
-table tr {
+body:not(.woocommerce-cart):not(.woocommerce-checkout) table:not(.wc-block-cart-items):not([class*="wc-block"]) th,
+body:not(.woocommerce-cart):not(.woocommerce-checkout) table:not(.wc-block-cart-items):not([class*="wc-block"]) tr {
     text-align: center;
     vertical-align: middle;
 }
@@ -610,6 +777,96 @@ li.product:hover .wc-product-image img {
 .woocommerce div.product div.summary,
 .woocommerce div.product form.cart {
     margin-bottom: 0 !important;
+}
+
+.woocommerce div.product form.cart div.quantity {
+    margin-right: 0 !important;
+}
+
+.woocommerce .add-to-cart-panel form.cart,
+.woocommerce div.product.do-quantity-buttons form.cart,
+.oa-tfp-add-to-cart-container {
+    gap: 8px !important;
+}
+
+/*
+ * WooCommerce 10+/11 cart & checkout blocks use container queries.
+ * GeneratePress sets .site-content { display: flex }, and flex items default
+ * to min-width: auto — that makes the blocks overflow after the plugin update.
+ */
+body.woocommerce-cart .site-content,
+body.woocommerce-checkout .site-content {
+    display: block;
+}
+
+body.woocommerce-cart .content-area,
+body.woocommerce-checkout .content-area,
+body.woocommerce-cart .site-main,
+body.woocommerce-checkout .site-main,
+body.woocommerce-cart .inside-article,
+body.woocommerce-checkout .inside-article,
+body.woocommerce-cart .entry-content,
+body.woocommerce-checkout .entry-content,
+body.woocommerce-cart .wp-block-woocommerce-cart,
+body.woocommerce-checkout .wp-block-woocommerce-checkout {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.woocommerce-cart .wc-block-grid__products,
+body.woocommerce-cart .wc-block-product-template {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 -8px 16px;
+    padding: 0;
+    list-style: none;
+}
+
+body.woocommerce-cart .wc-block-grid__product,
+body.woocommerce-cart .wc-block-product-template > * {
+    box-sizing: border-box;
+    display: block;
+    list-style: none;
+    min-width: 0;
+    margin: 0;
+    padding: 0 8px 16px;
+    flex: 1 0 50%;
+    max-width: 50%;
+}
+
+@media screen and (min-width: 769px) {
+    body.woocommerce-cart .wc-block-grid.has-4-columns .wc-block-grid__product,
+    body.woocommerce-cart .wc-block-grid.has-4-columns .wc-block-product-template > * {
+        flex-basis: 25%;
+        max-width: 25%;
+    }
+}
+
+body.woocommerce-cart .wc-block-grid__product-image img,
+body.woocommerce-cart .wc-block-product-template img,
+body.woocommerce-cart .wc-block-components-product-image img,
+body.woocommerce-cart .wc-block-cart-item__image img {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+body.woocommerce-cart table.wc-block-cart-items,
+body.woocommerce-checkout table.wc-block-cart-items,
+body.woocommerce-cart .wc-block-components-order-summary,
+body.woocommerce-checkout .wc-block-components-order-summary {
+    border: 0;
+}
+
+body.woocommerce-cart table.wc-block-cart-items th,
+body.woocommerce-cart table.wc-block-cart-items td,
+body.woocommerce-checkout table.wc-block-cart-items th,
+body.woocommerce-checkout table.wc-block-cart-items td {
+    text-align: left;
+    vertical-align: top;
 }
 
 /*=========================================

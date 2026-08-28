@@ -18,10 +18,28 @@ function custom_woocommerce_placeholder_img_src( $src ) {
 }
 add_filter( 'woocommerce_placeholder_img_src', 'custom_woocommerce_placeholder_img_src', 10 );
 
-add_filter( 'woocommerce_placeholder_img', function( $image_html ) {
+add_filter( 'woocommerce_placeholder_img', function ( $image_html ) {
     $image_url = get_stylesheet_directory_uri() . '/assets/images/product-placeholder.png';
     return '<img src="' . esc_url( $image_url ) . '" alt="Placeholder" class="woocommerce-placeholder wp-post-image" />';
 });
+
+/**
+ * WP 7.1 prints core block CSS on demand. Classic themes then skip
+ * columns/layout CSS, so Gutenberg columns stack on the frontend
+ * while the editor still looks correct.
+ */
+add_filter( 'should_load_separate_core_block_assets', '__return_false' );
+add_filter( 'should_load_block_assets_on_demand', '__return_false' );
+
+add_action( 'wp_enqueue_scripts', 'gp_child_enqueue_core_block_library', 5 );
+function gp_child_enqueue_core_block_library() {
+	if ( is_admin() ) {
+		return;
+	}
+
+	wp_enqueue_style( 'wp-block-library' );
+	wp_enqueue_style( 'global-styles' );
+}
 
 // Enqueue Owl Carousel assets (only once)
 function gp_enqueue_owl_carousel() {
@@ -381,6 +399,113 @@ function gp_child_mini_cart_disable_auto_open( $content, $block ) {
 	return $content;
 }
 
+/**
+ * WooCommerce 10+/11 split block CSS and WordPress 7.1 on-demand block assets.
+ *
+ * Cart/checkout/mini-cart block.json have no "style" handle, and
+ * AbstractBlock::enqueue_assets() no longer prints styles. Frontend then loads
+ * scripts without checkout.css / packages-style.css / mini-cart.css — collapsed
+ * layout, tiny inputs, and an unstyled header mini-cart drawer.
+ */
+add_action( 'wp_enqueue_scripts', 'gp_child_enqueue_wc_blocks_frontend_styles', 30 );
+function gp_child_enqueue_wc_blocks_frontend_styles() {
+	if ( is_admin() ) {
+		return;
+	}
+
+	$handles = array(
+		'wc-blocks-style',
+		'wc-blocks-packages-style',
+		'wc-blocks-style-mini-cart',
+		'wc-blocks-style-mini-cart-contents',
+	);
+
+	if ( function_exists( 'is_cart' ) && is_cart() ) {
+		$handles[] = 'wc-blocks-style-cart';
+		$handles[] = 'wc-blocks-style-all-products';
+	}
+
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		$handles[] = 'wc-blocks-style-checkout';
+		$handles[] = 'wc-blocks-style-all-products';
+	}
+
+	foreach ( $handles as $handle ) {
+		if ( wp_style_is( $handle, 'registered' ) ) {
+			wp_enqueue_style( $handle );
+		}
+	}
+
+	gp_child_enqueue_wc_block_css_file( 'wc-blocks-packages-style', 'packages-style.css' );
+	gp_child_enqueue_wc_block_css_file( 'wc-blocks-style-mini-cart', 'mini-cart.css' );
+	gp_child_enqueue_wc_block_css_file( 'wc-blocks-style-mini-cart-contents', 'mini-cart-contents.css' );
+
+	if ( function_exists( 'is_cart' ) && is_cart() ) {
+		gp_child_enqueue_wc_block_css_file( 'wc-blocks-style-cart', 'cart.css' );
+	}
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		gp_child_enqueue_wc_block_css_file( 'wc-blocks-style-checkout', 'checkout.css' );
+	}
+
+	// Mini-cart drawer width is added by MiniCartContents during render, after
+	// wp_head, so it never prints. Attach the fallback to styles that already
+	// enqueue in wp_head.
+	$drawer_css = ':root{--drawer-width:480px;--neg-drawer-width:calc(var(--drawer-width)*-1);}'
+		. '.wc-block-mini-cart__badge{left:100%!important;margin-left:-4px!important;transform:translateY(-50%)!important;}';
+	foreach ( array( 'generate-child', 'wc-blocks-style', 'wc-blocks-style-mini-cart' ) as $inline_handle ) {
+		if ( wp_style_is( $inline_handle, 'enqueued' ) ) {
+			wp_add_inline_style( $inline_handle, $drawer_css );
+		}
+	}
+}
+
+/**
+ * Register + enqueue a WooCommerce Blocks CSS file when WP never registered the handle.
+ *
+ * @param string $handle Style handle.
+ * @param string $file   Filename under woocommerce/assets/client/blocks/.
+ */
+function gp_child_enqueue_wc_block_css_file( $handle, $file ) {
+	if ( wp_style_is( $handle, 'enqueued' ) ) {
+		return;
+	}
+
+	if ( wp_style_is( $handle, 'registered' ) ) {
+		wp_enqueue_style( $handle );
+		return;
+	}
+
+	$relative = 'woocommerce/assets/client/blocks/' . ltrim( $file, '/' );
+	$path     = WP_PLUGIN_DIR . '/' . $relative;
+	if ( ! is_readable( $path ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		$handle,
+		plugins_url( $relative ),
+		array( 'wc-blocks-style' ),
+		(string) filemtime( $path )
+	);
+}
+
+/**
+ * WC Checkout block tries to dequeue classic checkout.js during render, which is
+ * after wp_enqueue_scripts has already run — so checkout.min.js still prints.
+ */
+add_action( 'wp_enqueue_scripts', 'gp_child_dequeue_classic_checkout_assets', 100 );
+function gp_child_dequeue_classic_checkout_assets() {
+	if ( is_admin() || ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+		return;
+	}
+
+	wp_dequeue_script( 'wc-checkout' );
+	wp_dequeue_script( 'wc-address-autocomplete' );
+	wp_dequeue_style( 'wc-address-autocomplete' );
+	wp_dequeue_script( 'selectWoo' );
+	wp_dequeue_style( 'select2' );
+}
+
 add_action( 'wp_enqueue_scripts', 'gp_child_enqueue_ajax_add_to_cart', 25 );
 function gp_child_enqueue_ajax_add_to_cart() {
 	if ( is_admin() || ! function_exists( 'is_product' ) || ! is_product() ) {
@@ -453,7 +578,8 @@ function gp_child_enqueue_ajax_add_to_cart() {
 			return /choose product options|added to your cart/i.test($(this).text());
 		}).remove();
 
-		$button.removeClass('added').addClass('loading');
+		$button.removeClass('added');
+		$button.prop('disabled', true);
 
 		var beforeCountPromise = getCartItemsCount();
 		var postUrl = ($form.attr('action') && $form.attr('action').length) ? $form.attr('action') : window.location.href;
@@ -463,7 +589,7 @@ function gp_child_enqueue_ajax_add_to_cart() {
 			url: postUrl,
 			data: $form.serialize(),
 			success: function (html) {
-				$button.removeClass('loading');
+				$button.prop('disabled', false);
 
 				var $response = $('<div>').append($.parseHTML(html, document, true));
 
@@ -504,7 +630,7 @@ function gp_child_enqueue_ajax_add_to_cart() {
 				});
 			},
 			error: function () {
-				$button.removeClass('loading');
+				$button.prop('disabled', false);
 				$form.off('submit');
 				$form.get(0).submit();
 			}

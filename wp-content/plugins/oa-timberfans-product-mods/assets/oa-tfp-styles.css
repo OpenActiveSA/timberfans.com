@@ -984,12 +984,12 @@ form.cart .reset_variations {
 .woocommerce div.product.do-quantity-buttons form.cart {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 20px;
+    gap: 0 8px;
 }
 
 
 .woocommerce div.product form.cart div.quantity {
-    margin: 0 5.3% 0 0;
+    margin: 0;
     background-color: #f7f6f5;
     border-radius: 5px;
     overflow: hidden;
@@ -1034,7 +1034,7 @@ form.cart .reset_variations {
 .oa-tfp-add-to-cart-container {
     display: flex;
     align-items: stretch;
-    gap: 1rem;
+    gap: 8px;
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     opacity: 1;
