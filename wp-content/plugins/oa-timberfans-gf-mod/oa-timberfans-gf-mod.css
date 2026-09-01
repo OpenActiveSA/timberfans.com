@@ -39,47 +39,101 @@
 }
 
 /* Common grid layout for image-based fields (Products = 5 per row) */
-.oa-tf-grid-field .gfield_radio {
+.oa-tf-grid-field .gfield_radio,
+.oa-tf-grid-field .ginput_container_radio,
+#gform_wrapper_3 #field_3_1 .gfield_radio,
+#gform_wrapper_3 #field_3_5 .gfield_radio,
+#gform_wrapper_3 #field_3_6 .gfield_radio {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr);
     gap: 15px !important;
+    align-items: start;
 }
 
 /* Timber Finish & Metal Finish = 6 per row */
 #field_3_5.oa-tf-grid-field .gfield_radio,
-#field_3_6.oa-tf-grid-field .gfield_radio {
+#field_3_6.oa-tf-grid-field .gfield_radio,
+.oa-tf-grid-field--6col .gfield_radio,
+#gform_wrapper_3 #field_3_5 .gfield_radio,
+#gform_wrapper_3 #field_3_6 .gfield_radio {
     grid-template-columns: repeat(6, 1fr);
 }
 
-.oa-tf-grid-field .gfield_radio .gchoice {
+.oa-tf-grid-field .gfield_radio .gchoice,
+#gform_wrapper_3 #field_3_1 .gchoice,
+#gform_wrapper_3 #field_3_5 .gchoice,
+#gform_wrapper_3 #field_3_6 .gchoice {
     padding-block-end: 0 !important;
     padding-inline-end: 0 !important;
+    display: block !important;
+    margin: 0 !important;
 }
 
 .oa-tf-grid-field .gfield_radio li {
     margin: 0 !important;
 }
 
-.oa-tf-grid-field .gfield_radio label {
-    display: flex;
+.oa-tf-grid-field .gfield_radio label,
+#gform_wrapper_3 #field_3_1 label,
+#gform_wrapper_3 #field_3_5 label,
+#gform_wrapper_3 #field_3_6 label {
+    display: flex !important;
     flex-direction: column;
-    margin: 0;
+    align-items: center;
+    text-align: center;
+    margin: 0 !important;
+    padding: 0 !important;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
     border: 2px solid transparent;
+    background: transparent !important;
+    gap: 0;
 }
 
-.oa-tf-grid-field .gfield_radio input[type="radio"] {
-    display: none;
+/* Hide Gravity Forms Orbital radio dots on swatch fields */
+.oa-tf-grid-field label::before,
+.oa-tf-flex-field label::before,
+#gform_wrapper_3 #field_3_1 label::before,
+#gform_wrapper_3 #field_3_4 label::before,
+#gform_wrapper_3 #field_3_5 label::before,
+#gform_wrapper_3 #field_3_6 label::before,
+#gform_wrapper_3 #field_3_7 label::before {
+    display: none !important;
+    content: none !important;
 }
 
-.oa-tf-grid-field .gfield_radio input[type="radio"]:checked + label img {
+.oa-tf-grid-field .gfield_radio input[type="radio"],
+.oa-tf-flex-field .gfield_radio input[type="radio"],
+#gform_wrapper_3 #field_3_1 input[type="radio"],
+#gform_wrapper_3 #field_3_4 input[type="radio"],
+#gform_wrapper_3 #field_3_5 input[type="radio"],
+#gform_wrapper_3 #field_3_6 input[type="radio"],
+#gform_wrapper_3 #field_3_7 input[type="radio"] {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+    pointer-events: none !important;
+    appearance: none !important;
+}
+
+.oa-tf-grid-field .gfield_radio input[type="radio"]:checked + label img,
+#gform_wrapper_3 #field_3_1 input[type="radio"]:checked + label img,
+#gform_wrapper_3 #field_3_5 input[type="radio"]:checked + label img,
+#gform_wrapper_3 #field_3_6 input[type="radio"]:checked + label img {
     box-shadow: 0 0 0px 2px #222;
 }
 
-.oa-tf-grid-field .gfield_radio input[type="radio"]:checked + label::after {
+.oa-tf-grid-field .gfield_radio input[type="radio"]:checked + label::after,
+#gform_wrapper_3 #field_3_1 input[type="radio"]:checked + label::after,
+#gform_wrapper_3 #field_3_5 input[type="radio"]:checked + label::after,
+#gform_wrapper_3 #field_3_6 input[type="radio"]:checked + label::after {
     content: "";
     position: absolute;
     top: 8px;
@@ -93,14 +147,43 @@
     z-index: 10;
 }
 
-.oa-tf-grid-field .gfield_radio img {
+.oa-tf-grid-field .gfield_radio img,
+#gform_wrapper_3 #field_3_1 img,
+#gform_wrapper_3 #field_3_5 img,
+#gform_wrapper_3 #field_3_6 img {
     margin-bottom: 10px;
     background-color: #f7f6f5;
     border-radius: 5px;
     overflow: hidden;
     width: 100%;
-    height: auto;
+    height: auto !important;
+    max-height: none !important;
+    max-block-size: none !important;
     object-fit: cover;
+}
+
+.oa-tf-grid-field .gchoice:has(input:checked) img,
+#gform_wrapper_3 #field_3_1 .gchoice:has(input:checked) img,
+#gform_wrapper_3 #field_3_5 .gchoice:has(input:checked) img,
+#gform_wrapper_3 #field_3_6 .gchoice:has(input:checked) img {
+    box-shadow: 0 0 0px 2px #222;
+}
+
+.oa-tf-grid-field .gchoice:has(input:checked) label::after,
+#gform_wrapper_3 #field_3_1 .gchoice:has(input:checked) label::after,
+#gform_wrapper_3 #field_3_5 .gchoice:has(input:checked) label::after,
+#gform_wrapper_3 #field_3_6 .gchoice:has(input:checked) label::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background-image: url('./assets/icon-check.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10;
 }
 
 /* Common white image outline */
@@ -110,14 +193,18 @@
 }
 
 /* Common flex layout for button-based fields */
-.oa-tf-flex-field .gfield_radio {
-    display: flex;
+.oa-tf-flex-field .gfield_radio,
+#gform_wrapper_3 #field_3_4 .gfield_radio,
+#gform_wrapper_3 #field_3_7 .gfield_radio {
+    display: flex !important;
     gap: 20px;
     flex-wrap: wrap;
-    flex-direction: row;
+    flex-direction: row !important;
 }
 
-.oa-tf-flex-field .gfield_radio .gchoice {
+.oa-tf-flex-field .gfield_radio .gchoice,
+#gform_wrapper_3 #field_3_4 .gchoice,
+#gform_wrapper_3 #field_3_7 .gchoice {
     padding-block-end: 0;
     padding-inline-end: 0;
 }
@@ -126,36 +213,43 @@
     margin: 0 !important;
 }
 
-.oa-tf-flex-field .gfield_radio label {
-    display: flex;
+.oa-tf-flex-field .gfield_radio label,
+#gform_wrapper_3 #field_3_4 label,
+#gform_wrapper_3 #field_3_7 label {
+    display: flex !important;
     align-items: center;
-    margin: 0;
-    padding: 12px 30px 12px 12px;
+    margin: 0 !important;
+    padding: 12px 30px 12px 12px !important;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
     border: 2px solid #e0e0e0;
-    background-color: #f9f9f9;
+    background-color: #f9f9f9 !important;
     justify-content: center;
 }
 
-.oa-tf-flex-field .gfield_radio label:hover {
+.oa-tf-flex-field .gfield_radio label:hover,
+#gform_wrapper_3 #field_3_4 label:hover,
+#gform_wrapper_3 #field_3_7 label:hover {
     border-color: #ccc;
-    background-color: #f0f0f0;
+    background-color: #f0f0f0 !important;
 }
 
-.oa-tf-flex-field .gfield_radio input[type="radio"] {
-    display: none;
-}
-
-.oa-tf-flex-field .gfield_radio input[type="radio"]:checked + label {
+.oa-tf-flex-field .gfield_radio input[type="radio"]:checked + label,
+#gform_wrapper_3 #field_3_4 input[type="radio"]:checked + label,
+#gform_wrapper_3 #field_3_7 input[type="radio"]:checked + label,
+.oa-tf-flex-field .gchoice:has(input:checked) label,
+#gform_wrapper_3 #field_3_4 .gchoice:has(input:checked) label,
+#gform_wrapper_3 #field_3_7 .gchoice:has(input:checked) label {
     border-color: #222;
-    background-color: #fff;
+    background-color: #fff !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.oa-tf-flex-field .gfield_radio input[type="radio"]:checked + label::after {
+.oa-tf-flex-field .gfield_radio input[type="radio"]:checked + label::after,
+#gform_wrapper_3 #field_3_4 input[type="radio"]:checked + label::after,
+#gform_wrapper_3 #field_3_7 input[type="radio"]:checked + label::after {
     content: "";
     position: absolute;
     top: 8px;
@@ -225,18 +319,21 @@
    Loading States
    ========================================================================== */
 
-/* Individual field loading state */
-.loading {
+/* Individual field loading state — scoped so WooCommerce .loading is untouched */
+.oa-tf-field.loading,
+#gform_wrapper_3 .gfield.loading {
     pointer-events: none;
     position: relative;
 }
 
-.loading .ginput_container {
+.oa-tf-field.loading .ginput_container,
+#gform_wrapper_3 .gfield.loading .ginput_container {
     opacity: 0.25;
 }
 
 /* Field-specific loading indicator */
-.loading::after {
+.oa-tf-field.loading::after,
+#gform_wrapper_3 .gfield.loading::after {
     content: "";
     position: absolute;
     top: 50%;
@@ -339,7 +436,8 @@
     }
     
     /* Loading indicator adjustments for mobile */
-    .loading::after {
+    .oa-tf-field.loading::after,
+    #gform_wrapper_3 .gfield.loading::after {
         width: 25px;
         height: 25px;
     }
@@ -368,7 +466,8 @@
     }
     
     /* Loading indicator adjustments for small mobile */
-    .loading::after {
+    .oa-tf-field.loading::after,
+    #gform_wrapper_3 .gfield.loading::after {
         width: 20px;
         height: 20px;
     }
@@ -381,7 +480,8 @@
    ========================================================================== */
 
 @media print {
-    .loading {
+    .oa-tf-field.loading,
+    #gform_wrapper_3 .gfield.loading {
         opacity: 1 !important;
         pointer-events: auto !important;
     }

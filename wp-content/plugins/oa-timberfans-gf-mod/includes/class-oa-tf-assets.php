@@ -37,6 +37,7 @@ class OA_TF_Assets {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
         add_filter( 'gform_pre_render', array( $this, 'ensure_assets_from_form' ), 10, 2 );
+        add_filter( 'gform_field_css_class', array( $this, 'add_field_classes' ), 10, 3 );
     }
     
     /**
@@ -77,16 +78,55 @@ class OA_TF_Assets {
     }
     
     /**
-     * Enqueue both CSS and JS (only once).
+     * Enqueue both CSS and JS (only once, unless a later dequeue stripped them).
      */
     private function enqueue_assets() {
-        if ( $this->assets_enqueued ) {
+        $style_ok  = wp_style_is( 'oa-timberfans-gf-mod', 'enqueued' );
+        $script_ok = wp_script_is( 'oa-timberfans-gf-mod', 'enqueued' );
+
+        if ( $this->assets_enqueued && $style_ok && $script_ok ) {
             return;
         }
 
         $this->enqueue_css();
         $this->enqueue_js();
         $this->assets_enqueued = true;
+    }
+
+    /**
+     * Add swatch/chip classes in PHP so the popup is styled even if JS is delayed.
+     *
+     * @param string $classes Space-separated CSS classes.
+     * @param object $field   Gravity Forms field.
+     * @param array  $form    Gravity Forms form.
+     * @return string
+     */
+    public function add_field_classes( $classes, $field, $form ) {
+        $form_id = 0;
+        if ( is_array( $form ) && isset( $form['id'] ) ) {
+            $form_id = (int) $form['id'];
+        } elseif ( is_object( $form ) && isset( $form->id ) ) {
+            $form_id = (int) $form->id;
+        }
+
+        if ( $form_id !== 3 ) {
+            return $classes;
+        }
+
+        $field_id = isset( $field->id ) ? (int) $field->id : 0;
+
+        if ( in_array( $field_id, array( 1, 5, 6 ), true ) ) {
+            $classes .= ' oa-tf-grid-field oa-tf-field';
+            if ( in_array( $field_id, array( 5, 6 ), true ) ) {
+                $classes .= ' oa-tf-grid-field--6col';
+            }
+        }
+
+        if ( in_array( $field_id, array( 4, 7 ), true ) ) {
+            $classes .= ' oa-tf-flex-field oa-tf-field';
+        }
+
+        return $classes;
     }
 
     /**
@@ -161,9 +201,9 @@ class OA_TF_Assets {
             }
         }
 
-        // Always load on designated quote page (if set).
-        $quote_page_id = get_option( 'oa_tfp_quote_page' );
-        if ( $quote_page_id && function_exists( 'is_page' ) && is_page( $quote_page_id ) ) {
+        // Always load on the quote page (slug or designated page ID).
+        $quote_page_id = absint( get_option( 'oa_tfp_quote_page' ) );
+        if ( is_page( 'quote' ) || ( $quote_page_id && is_page( $quote_page_id ) ) ) {
             return true;
         }
 

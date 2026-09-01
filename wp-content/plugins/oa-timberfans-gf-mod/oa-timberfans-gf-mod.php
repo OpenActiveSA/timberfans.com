@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Open Agency: TimberFans GF Mod
  * Description:     Dynamically populates Nested Form #3 with WooCommerce products & fan size options.
- * Version:         1.0.3
+ * Version:         1.0.4
  * Author:          Open Agency
  * Text Domain:     oa-timberfans-gf-mod
  * License:         GPL v2 or later
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define plugin constants
-define( 'OA_TF_GF_MOD_VERSION', '1.0.3' );
+define( 'OA_TF_GF_MOD_VERSION', '1.0.4' );
 define( 'OA_TF_GF_MOD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OA_TF_GF_MOD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'OA_TF_GF_MOD_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );

@@ -673,6 +673,8 @@ function gp_child_dequeue_unused_assets() {
 
 	$is_cart_checkout = function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_account_page() );
 	$is_product       = function_exists( 'is_product' ) && is_product();
+	$quote_page_id    = absint( get_option( 'oa_tfp_quote_page' ) );
+	$is_quote         = is_page( 'quote' ) || ( $quote_page_id && is_page( $quote_page_id ) );
 	$is_catalog       = function_exists( 'is_shop' ) && (
 		is_shop() || is_product_taxonomy() || is_product_category() || is_product_tag()
 	);
@@ -711,7 +713,7 @@ function gp_child_dequeue_unused_assets() {
 		);
 	}
 
-	// Single-product / quote tooling: not needed on homepage carousels.
+	// Single-product variation / add-ons tooling: not needed on homepage carousels.
 	if ( ! $is_product ) {
 		gp_child_dequeue_handles(
 			array(
@@ -724,14 +726,10 @@ function gp_child_dequeue_unused_assets() {
 				'woocommerce-addons-validation',
 				'pao-validation',
 				'wc-product-addons',
-				// Quote / Gravity Forms product mod (product pages)
-				'oa-timberfans-gf-mod',
-				'oa-tf-gf-mod',
 			),
 			array(
 				'woocommerce-addons-css',
 				'woocommerce-product-addons',
-				'oa-timberfans-gf-mod',
 			)
 		);
 
@@ -739,6 +737,25 @@ function gp_child_dequeue_unused_assets() {
 			array(
 				'/woocommerce-product-addons/',
 				'/add-to-cart-variation',
+			)
+		);
+	}
+
+	// Nested-form quote popup (image swatches + size chips). Needed on product
+	// pages and /quote/; strip it from marketing pages that only list products.
+	if ( ! $is_product && ! $is_quote ) {
+		gp_child_dequeue_handles(
+			array(
+				'oa-timberfans-gf-mod',
+				'oa-tf-gf-mod',
+			),
+			array(
+				'oa-timberfans-gf-mod',
+			)
+		);
+
+		gp_child_dequeue_by_src_contains(
+			array(
 				'/oa-timberfans-gf-mod/',
 			)
 		);

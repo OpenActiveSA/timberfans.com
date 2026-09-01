@@ -629,41 +629,50 @@
    GRAVITY FORMS POPUP/MODAL STYLING
    ======================================== */
 
-/* GP Nested Forms Dialog/Modal Styling */
+/* GP Nested Forms Dialog (legacy jQuery UI) and Tingle modal */
 .gpnf-dialog.ui-dialog,
-.gpnf-modal {
+.gpnf-modal,
+.tingle-modal.gpnf-modal {
     font-family: inherit !important;
     z-index: 1000000 !important;
 }
 
-.gpnf-dialog .ui-dialog-titlebar {
+.gpnf-dialog .ui-dialog-titlebar,
+.gpnf-modal .gpnf-modal-header {
     background: #222 !important;
     color: #fff !important;
     border: 0 !important;
-    padding: 15px 20px !important;
     font-weight: 600 !important;
 }
 
-.gpnf-dialog .ui-dialog-title {
+.gpnf-dialog .ui-dialog-titlebar {
+    padding: 15px 20px !important;
+}
+
+.gpnf-dialog .ui-dialog-title,
+.gpnf-modal .gpnf-modal-header {
     color: #fff !important;
     font-size: 18px !important;
     font-weight: 600 !important;
 }
 
-.gpnf-dialog .ui-dialog-content {
-    padding: 25px !important;
+.gpnf-dialog .ui-dialog-content,
+.gpnf-modal .tingle-modal-box {
     background: #fff !important;
 }
 
-.gpnf-dialog .gform_wrapper {
+.gpnf-dialog .gform_wrapper,
+.gpnf-modal .gform_wrapper {
     max-width: 100% !important;
 }
 
-.gpnf-dialog .gform_wrapper .gfield {
+.gpnf-dialog .gform_wrapper .gfield,
+.gpnf-modal .gform_wrapper .gfield {
     margin-bottom: 20px !important;
 }
 
-.gpnf-dialog .gform_wrapper label {
+.gpnf-dialog .gform_wrapper .gfield_label,
+.gpnf-modal .gform_wrapper .gfield_label {
     font-weight: 600 !important;
     color: #222 !important;
 }
@@ -672,7 +681,12 @@
 .gpnf-dialog .gform_wrapper input[type="email"],
 .gpnf-dialog .gform_wrapper input[type="number"],
 .gpnf-dialog .gform_wrapper select,
-.gpnf-dialog .gform_wrapper textarea {
+.gpnf-dialog .gform_wrapper textarea,
+.gpnf-modal .gform_wrapper input[type="text"],
+.gpnf-modal .gform_wrapper input[type="email"],
+.gpnf-modal .gform_wrapper input[type="number"],
+.gpnf-modal .gform_wrapper select,
+.gpnf-modal .gform_wrapper textarea {
     width: 100% !important;
     padding: 10px !important;
     border: 1px solid #ddd !important;
@@ -681,7 +695,9 @@
 }
 
 .gpnf-dialog .gform_wrapper .gform_button,
-.gpnf-dialog .gform_wrapper input[type="submit"] {
+.gpnf-dialog .gform_wrapper input[type="submit"],
+.gpnf-modal .tingle-btn,
+.gpnf-modal .gpnf-btn-submit {
     background: #222 !important;
     color: #fff !important;
     padding: 12px 24px !important;
@@ -693,15 +709,29 @@
 }
 
 .gpnf-dialog .gform_wrapper .gform_button:hover,
-.gpnf-dialog .gform_wrapper input[type="submit"]:hover {
+.gpnf-dialog .gform_wrapper input[type="submit"]:hover,
+.gpnf-modal .tingle-btn:hover,
+.gpnf-modal .gpnf-btn-submit:hover {
     background: #444 !important;
 }
 
-/* Radio and Checkbox styling in modal */
+.gpnf-modal .tingle-btn--default,
+.gpnf-modal .gpnf-btn-cancel {
+    background: #e8e8e8 !important;
+    color: #222 !important;
+}
+
+.gpnf-modal .tingle-btn--default:hover,
+.gpnf-modal .gpnf-btn-cancel:hover {
+    background: #d4d4d4 !important;
+}
+
+/* Radio and Checkbox styling in modal (plain fields only; swatches override this) */
 .gpnf-dialog .gform_wrapper .gfield_radio label,
-.gpnf-dialog .gform_wrapper .gfield_checkbox label {
+.gpnf-dialog .gform_wrapper .gfield_checkbox label,
+.gpnf-modal .gform_wrapper .gfield_radio label,
+.gpnf-modal .gform_wrapper .gfield_checkbox label {
     font-weight: normal !important;
-    margin-left: 8px !important;
 }
 
 .gpnf-dialog .gform_wrapper .gfield_radio input[type="radio"],
@@ -711,22 +741,26 @@
 }
 
 /* Close button styling */
-.gpnf-dialog .ui-dialog-titlebar-close {
+.gpnf-dialog .ui-dialog-titlebar-close,
+.gpnf-modal .tingle-modal__close {
     color: #fff !important;
     opacity: 0.7 !important;
     transition: opacity 0.3s ease !important;
 }
 
-.gpnf-dialog .ui-dialog-titlebar-close:hover {
+.gpnf-dialog .ui-dialog-titlebar-close:hover,
+.gpnf-modal .tingle-modal__close:hover {
     opacity: 1 !important;
 }
 
 /* Ensure form fields are visible and styled */
-.gpnf-dialog .gform_wrapper .gfield_required {
+.gpnf-dialog .gform_wrapper .gfield_required,
+.gpnf-modal .gform_wrapper .gfield_required {
     color: #c00 !important;
 }
 
-.gpnf-dialog .gform_wrapper .gfield_description {
+.gpnf-dialog .gform_wrapper .gfield_description,
+.gpnf-modal .gform_wrapper .gfield_description {
     font-size: 13px !important;
     color: #666 !important;
     margin-top: 5px !important;

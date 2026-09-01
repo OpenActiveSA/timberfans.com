@@ -114,6 +114,9 @@
                 const $field = $(`#field_${formId}_${fieldId}`);
                 if ($field.length > 0) {
                     $field.addClass('oa-tf-grid-field oa-tf-field');
+                    if (fieldId === 5 || fieldId === 6) {
+                        $field.addClass('oa-tf-grid-field--6col');
+                    }
                     console.log(`OA TimberFans: Applied grid classes to field ${fieldId}`);
                 }
             });
