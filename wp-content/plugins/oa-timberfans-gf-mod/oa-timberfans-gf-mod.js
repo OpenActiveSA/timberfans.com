@@ -431,23 +431,19 @@
                 
                 // If this option is available OR it's currently selected (for editing), show it
                 if (availableOptions.indexOf(radioValue) !== -1 || isCurrentlySelected) {
-                    // Option is available for this product or currently selected
-                    $label.show();
-                    $label.removeClass('oa-tf-disabled');
                     $gchoice.removeClass('oa-tf-unavailable');
+                    $label.removeClass('oa-tf-disabled');
+                    $label.show();
                     $radio.prop('disabled', false);
-                    
-                    // If it's currently selected but not available, add a warning class
+
                     if (isCurrentlySelected && availableOptions.indexOf(radioValue) === -1) {
                         $gchoice.addClass('oa-tf-unavailable');
                         $radio.prop('disabled', true);
                         console.log('OA TimberFans: Selected option is not available', { radioValue });
                     }
                 } else {
-                    // Option is not available for this product
-                    $label.hide();
-                    $label.addClass('oa-tf-disabled');
                     $gchoice.addClass('oa-tf-unavailable');
+                    $label.addClass('oa-tf-disabled');
                     $radio.prop('disabled', true);
                     $radio.prop('checked', false);
                 }

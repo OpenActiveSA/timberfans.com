@@ -50,26 +50,49 @@
     max-width: none !important;
 }
 
-/* Common grid layout for image-based fields (Products = 5 per row) */
+.oa-tf-grid-field .gfield_radio::before,
+.oa-tf-grid-field .gfield_radio::after,
+#gform_wrapper_3 #field_3_1 .gfield_radio::before,
+#gform_wrapper_3 #field_3_1 .gfield_radio::after,
+#gform_wrapper_3 #field_3_5 .gfield_radio::before,
+#gform_wrapper_3 #field_3_5 .gfield_radio::after,
+#gform_wrapper_3 #field_3_6 .gfield_radio::before,
+#gform_wrapper_3 #field_3_6 .gfield_radio::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Fan Range = 5 per row. Do not list finish fields here — that fights the 6-col rule. */
 .oa-tf-grid-field .gfield_radio,
-#gform_wrapper_3 #field_3_1 .gfield_radio,
-#gform_wrapper_3 #field_3_5 .gfield_radio,
-#gform_wrapper_3 #field_3_6 .gfield_radio {
+#gform_wrapper_3 #field_3_1 .gfield_radio {
     display: grid !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-auto-columns: minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
     gap: 16px !important;
+    column-gap: 16px !important;
     align-items: start;
     width: 100% !important;
     max-width: none !important;
 }
 
-/* Timber Finish & Metal Finish = 6 per row */
-#field_3_5.oa-tf-grid-field .gfield_radio,
-#field_3_6.oa-tf-grid-field .gfield_radio,
+/* Timber Finish & Metal Finish = 6 per row. Override GF gf_list_5col (repeat(5, 1fr)). */
+#field_3_5 .gfield_radio,
+#field_3_6 .gfield_radio,
 .oa-tf-grid-field--6col .gfield_radio,
+.gform-theme--foundation .oa-tf-grid-field--6col .gfield_radio,
+.gform-theme--foundation #field_3_5 .gfield_radio,
+.gform-theme--foundation #field_3_6 .gfield_radio,
+.gpnf-modal #field_3_5 .gfield_radio,
+.gpnf-modal #field_3_6 .gfield_radio,
 #gform_wrapper_3 #field_3_5 .gfield_radio,
 #gform_wrapper_3 #field_3_6 .gfield_radio {
+    display: grid !important;
     grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-auto-columns: minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
+    gap: 16px !important;
+    column-gap: 16px !important;
 }
 
 .oa-tf-grid-field .gfield_radio .gchoice,
@@ -80,9 +103,17 @@
     padding-inline-end: 0 !important;
     display: block !important;
     margin: 0 !important;
-    width: 100% !important;
+    width: auto !important;
     min-width: 0 !important;
     max-width: none !important;
+    justify-self: stretch !important;
+}
+
+.oa-tf-grid-field .gchoice.oa-tf-unavailable,
+#gform_wrapper_3 #field_3_1 .gchoice.oa-tf-unavailable,
+#gform_wrapper_3 #field_3_5 .gchoice.oa-tf-unavailable,
+#gform_wrapper_3 #field_3_6 .gchoice.oa-tf-unavailable {
+    display: none !important;
 }
 
 .oa-tf-grid-field .gfield_radio li {
@@ -174,11 +205,13 @@
     border-radius: 5px;
     overflow: hidden;
     width: 100% !important;
+    min-width: 0 !important;
     max-width: none !important;
     height: auto !important;
     max-height: none !important;
     max-block-size: none !important;
     max-inline-size: none !important;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
 }
 
@@ -439,9 +472,13 @@
     /* Grid fields responsive adjustments */
     .oa-tf-grid-field .gfield_radio,
     .oa-tf-grid-field--6col .gfield_radio,
+    #field_3_5 .gfield_radio,
+    #field_3_6 .gfield_radio,
     #gform_wrapper_3 #field_3_1 .gfield_radio,
     #gform_wrapper_3 #field_3_5 .gfield_radio,
-    #gform_wrapper_3 #field_3_6 .gfield_radio {
+    #gform_wrapper_3 #field_3_6 .gfield_radio,
+    .gform-theme--foundation #field_3_5 .gfield_radio,
+    .gform-theme--foundation #field_3_6 .gfield_radio {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         gap: 10px !important;
     }
@@ -473,9 +510,13 @@
     /* Grid fields mobile adjustments */
     .oa-tf-grid-field .gfield_radio,
     .oa-tf-grid-field--6col .gfield_radio,
+    #field_3_5 .gfield_radio,
+    #field_3_6 .gfield_radio,
     #gform_wrapper_3 #field_3_1 .gfield_radio,
     #gform_wrapper_3 #field_3_5 .gfield_radio,
-    #gform_wrapper_3 #field_3_6 .gfield_radio {
+    #gform_wrapper_3 #field_3_6 .gfield_radio,
+    .gform-theme--foundation #field_3_5 .gfield_radio,
+    .gform-theme--foundation #field_3_6 .gfield_radio {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 8px !important;
     }
