@@ -38,16 +38,29 @@
     color: #856404;
 }
 
+/* Outer radio container must stay a full-width block. Applying the 5-col
+   grid here too left the real choice list sitting in the first column. */
+.oa-tf-grid-field .ginput_container,
+.oa-tf-grid-field .ginput_container_radio,
+#gform_wrapper_3 #field_3_1 .ginput_container,
+#gform_wrapper_3 #field_3_5 .ginput_container,
+#gform_wrapper_3 #field_3_6 .ginput_container {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+}
+
 /* Common grid layout for image-based fields (Products = 5 per row) */
 .oa-tf-grid-field .gfield_radio,
-.oa-tf-grid-field .ginput_container_radio,
 #gform_wrapper_3 #field_3_1 .gfield_radio,
 #gform_wrapper_3 #field_3_5 .gfield_radio,
 #gform_wrapper_3 #field_3_6 .gfield_radio {
     display: grid !important;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 16px !important;
     align-items: start;
+    width: 100% !important;
+    max-width: none !important;
 }
 
 /* Timber Finish & Metal Finish = 6 per row */
@@ -56,7 +69,7 @@
 .oa-tf-grid-field--6col .gfield_radio,
 #gform_wrapper_3 #field_3_5 .gfield_radio,
 #gform_wrapper_3 #field_3_6 .gfield_radio {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
 }
 
 .oa-tf-grid-field .gfield_radio .gchoice,
@@ -67,6 +80,9 @@
     padding-inline-end: 0 !important;
     display: block !important;
     margin: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
 }
 
 .oa-tf-grid-field .gfield_radio li {
@@ -83,6 +99,7 @@
     text-align: center;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -151,14 +168,17 @@
 #gform_wrapper_3 #field_3_1 img,
 #gform_wrapper_3 #field_3_5 img,
 #gform_wrapper_3 #field_3_6 img {
+    display: block;
     margin-bottom: 10px;
     background-color: #f7f6f5;
     border-radius: 5px;
     overflow: hidden;
-    width: 100%;
+    width: 100% !important;
+    max-width: none !important;
     height: auto !important;
     max-height: none !important;
     max-block-size: none !important;
+    max-inline-size: none !important;
     object-fit: cover;
 }
 
@@ -417,9 +437,13 @@
 
 @media (max-width: 768px) {
     /* Grid fields responsive adjustments */
-    .oa-tf-grid-field .gfield_radio {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
+    .oa-tf-grid-field .gfield_radio,
+    .oa-tf-grid-field--6col .gfield_radio,
+    #gform_wrapper_3 #field_3_1 .gfield_radio,
+    #gform_wrapper_3 #field_3_5 .gfield_radio,
+    #gform_wrapper_3 #field_3_6 .gfield_radio {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 10px !important;
     }
     
     /* Flex field responsive adjustments */
@@ -447,9 +471,13 @@
 
 @media (max-width: 480px) {
     /* Grid fields mobile adjustments */
-    .oa-tf-grid-field .gfield_radio {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+    .oa-tf-grid-field .gfield_radio,
+    .oa-tf-grid-field--6col .gfield_radio,
+    #gform_wrapper_3 #field_3_1 .gfield_radio,
+    #gform_wrapper_3 #field_3_5 .gfield_radio,
+    #gform_wrapper_3 #field_3_6 .gfield_radio {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
     }
     
     .oa-tf-grid-field .gfield_radio label {

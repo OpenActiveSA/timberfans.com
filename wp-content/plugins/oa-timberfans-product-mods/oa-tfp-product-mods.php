@@ -2,7 +2,7 @@
 /*
 Plugin Name: Open Agency: Timberfans Product Mods
 Description: Adds product banner meta box and shortcode functionality for WooCommerce products. Includes modern Gravity Forms email styling.
-Version: 4.1.2
+Version: 4.1.3
 Author: Open Agency
 */
 
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('OA_TFP_PLUGIN_VERSION', '4.1.2');
+define('OA_TFP_PLUGIN_VERSION', '4.1.3');
 define('OA_TFP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('OA_TFP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 

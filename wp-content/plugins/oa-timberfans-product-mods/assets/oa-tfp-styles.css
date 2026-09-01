@@ -659,6 +659,8 @@
 .gpnf-dialog .ui-dialog-content,
 .gpnf-modal .tingle-modal-box {
     background: #fff !important;
+    width: min(1200px, 94vw) !important;
+    max-width: 94vw !important;
 }
 
 .gpnf-dialog .gform_wrapper,
