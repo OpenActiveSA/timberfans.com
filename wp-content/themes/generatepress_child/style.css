@@ -1026,3 +1026,11 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     object-fit: cover;
     object-position: center top;
 }
+
+/* Hide blog comment form/list (also covers cached HTML until PHP filters apply). */
+.single-post #comments,
+.single-post .comments-area,
+.blog .comments-link,
+.archive .comments-link {
+    display: none;
+}

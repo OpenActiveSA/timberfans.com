@@ -985,5 +985,32 @@ function gp_child_hide_featured_image_body_class( $classes ) {
 	return $classes;
 }
 
+/**
+ * Disable comments on blog posts. Product reviews stay intact.
+ */
+add_filter( 'comments_open', 'gp_child_disable_blog_comments', 20, 2 );
+add_filter( 'pings_open', 'gp_child_disable_blog_comments', 20, 2 );
+function gp_child_disable_blog_comments( $open, $post_id ) {
+	$post = get_post( $post_id );
+	if ( $post && 'post' === $post->post_type ) {
+		return false;
+	}
+	return $open;
+}
+
+add_filter( 'get_comments_number', 'gp_child_hide_blog_comment_count', 20, 2 );
+function gp_child_hide_blog_comment_count( $count, $post_id ) {
+	if ( is_admin() ) {
+		return $count;
+	}
+
+	$post = get_post( $post_id );
+	if ( $post && 'post' === $post->post_type ) {
+		return 0;
+	}
+
+	return $count;
+}
+
 require_once get_stylesheet_directory() . '/inc/seed-patio-blog-post.php';
 

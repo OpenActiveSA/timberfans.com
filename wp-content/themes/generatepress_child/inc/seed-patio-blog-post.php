@@ -46,13 +46,15 @@ function gp_child_seed_patio_blog_post() {
 
 	$post_id = wp_insert_post(
 		array(
-			'post_title'   => 'Wooden Ceiling Fans for Covered Patios: What You Need to Know',
-			'post_name'    => 'wooden-ceiling-fans-covered-patios',
-			'post_status'  => 'draft',
-			'post_type'    => 'post',
-			'post_author'  => $author_id,
-			'post_excerpt' => 'Discover how to choose and install wooden ceiling fans on covered patios. Learn about coastal conditions, damp location finishes and caring for your Timber Fan.',
-			'post_content' => '<!-- seeding -->',
+			'post_title'     => 'Wooden Ceiling Fans for Covered Patios: What You Need to Know',
+			'post_name'      => 'wooden-ceiling-fans-covered-patios',
+			'post_status'    => 'draft',
+			'post_type'      => 'post',
+			'post_author'    => $author_id,
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
+			'post_excerpt'   => 'Discover how to choose and install wooden ceiling fans on covered patios. Learn about coastal conditions, damp location finishes and caring for your Timber Fan.',
+			'post_content'   => '<!-- seeding -->',
 		),
 		true
 	);
