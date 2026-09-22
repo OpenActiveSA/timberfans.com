@@ -988,12 +988,12 @@ body.woocommerce-checkout table.wc-block-cart-items td {
 
 /* Patio post: space above each section line divider. */
 .single-post.postid-10778 .entry-content .wp-block-separator {
-    margin-top: 2.75em;
-    margin-bottom: 1.1em;
+    margin-top: 4em;
+    margin-bottom: 1.5em;
 }
 
 .single-post.postid-10778 .entry-content h3.gb-text {
-    margin-top: 0.35em;
+    margin-top: 0.65em;
 }
 
 /* Equal-height image rows on the patio post. */
