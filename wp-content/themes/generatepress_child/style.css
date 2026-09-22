@@ -985,3 +985,15 @@ body.woocommerce-checkout table.wc-block-cart-items td {
 .single-post.postid-10778 .inside-article > .featured-image.page-header-image-single {
     display: none;
 }
+
+/* Patio post section headings: match other blog posts, not 50px uppercase H2. */
+.single-post.postid-10778 .entry-content h2.wp-block-heading {
+    font-size: 33px;
+    text-transform: none;
+    line-height: 1.3em;
+    margin-top: 2.25em;
+}
+
+.single-post.postid-10778 .entry-content .wp-block-image + h2.wp-block-heading {
+    margin-top: 2.75em;
+}
