@@ -231,6 +231,20 @@ function gp_child_seed_image_columns( $items ) {
 }
 
 /**
+ * Image left, text right — matches the Word doc wrap for Installation.
+ *
+ * @param int    $image_id  Attachment ID.
+ * @param string $image_alt Alt text.
+ * @param string $text      Gutenberg blocks for the right column.
+ * @return string
+ */
+function gp_child_seed_image_text_columns( $image_id, $image_alt, $text ) {
+	$image = gp_child_seed_image_block( $image_id, $image_alt );
+
+	return "<!-- wp:columns {\"verticalAlignment\":\"top\",\"className\":\"patio-install-columns\"} -->\n<div class=\"wp-block-columns patio-install-columns are-vertically-aligned-top\">\n<!-- wp:column {\"verticalAlignment\":\"top\",\"width\":\"46%\"} -->\n<div class=\"wp-block-column is-vertically-aligned-top\" style=\"flex-basis:46%\">\n" . $image . "</div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"verticalAlignment\":\"top\",\"width\":\"54%\"} -->\n<div class=\"wp-block-column is-vertically-aligned-top\" style=\"flex-basis:54%\">\n" . $text . "</div>\n<!-- /wp:column -->\n</div>\n<!-- /wp:columns -->\n\n";
+}
+
+/**
  * Build Gutenberg post content.
  *
  * @param int[] $ids Map of image keys to attachment IDs.
@@ -283,9 +297,13 @@ function gp_child_seed_patio_blog_content( $ids ) {
 	);
 
 	$html .= "<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Important Installation Considerations</h2>\n<!-- /wp:heading -->\n\n";
-	$html .= gp_child_seed_image_block( $ids['09'], 'Timber ceiling fan in a slatted covered outdoor lounge looking into the bush' );
-	$html .= "<!-- wp:paragraph -->\n<p>A few simple checks can help ensure your fan performs well for years to come:</p>\n<!-- /wp:paragraph -->\n\n";
-	$html .= "<!-- wp:list -->\n<ul class=\"wp-block-list\">\n<!-- wp:list-item -->\n<li><strong>Keep it sheltered:</strong> Make sure the fan is protected from direct rain and wind-driven water.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Check for leaks:</strong> Resolve any roof or ceiling leaks before installation. Water entering through the mounting area can cause corrosion and damage internal components.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Consider exposure:</strong> Take prevailing winds, proximity to the sea and the overall exposure of the patio into account.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Install correctly:</strong> Follow the manufacturer's installation instructions and ensure electrical work is carried out by a qualified electrician.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Maintain your fan:</strong> Periodically check for corrosion, water marks or deterioration and keep the fan clean and dry.</li>\n<!-- /wp:list-item -->\n</ul>\n<!-- /wp:list -->\n\n";
+	$install_text  = "<!-- wp:paragraph -->\n<p>A few simple checks can help ensure your fan performs well for years to come:</p>\n<!-- /wp:paragraph -->\n\n";
+	$install_text .= "<!-- wp:list -->\n<ul class=\"wp-block-list\">\n<!-- wp:list-item -->\n<li><strong>Keep it sheltered:</strong> Make sure the fan is protected from direct rain and wind-driven water.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Check for leaks:</strong> Resolve any roof or ceiling leaks before installation. Water entering through the mounting area can cause corrosion and damage internal components.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Consider exposure:</strong> Take prevailing winds, proximity to the sea and the overall exposure of the patio into account.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Install correctly:</strong> Follow the manufacturer's installation instructions and ensure electrical work is carried out by a qualified electrician.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Maintain your fan:</strong> Periodically check for corrosion, water marks or deterioration and keep the fan clean and dry.</li>\n<!-- /wp:list-item -->\n</ul>\n<!-- /wp:list -->\n\n";
+	$html .= gp_child_seed_image_text_columns(
+		$ids['09'],
+		'Timber ceiling fan in a slatted covered outdoor lounge looking into the bush',
+		$install_text
+	);
 	$html .= "<!-- wp:paragraph -->\n<p>If your patio is particularly exposed to strong or persistent winds, we recommend discussing the installation with Timber Fans before proceeding.</p>\n<!-- /wp:paragraph -->\n\n";
 
 	$html .= "<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">What If Rust Develops?</h2>\n<!-- /wp:heading -->\n\n";
@@ -299,4 +317,56 @@ function gp_child_seed_patio_blog_content( $ids ) {
 	$html .= gp_child_seed_image_block( $ids['10'], 'Covered indoor-outdoor dining space with timber ceiling fans' );
 
 	return $html;
+}
+
+add_action( 'init', 'gp_child_patch_patio_install_columns', 40 );
+
+/**
+ * One-time: wrap the installation photo and checklist in two columns.
+ */
+function gp_child_patch_patio_install_columns() {
+	if ( is_admin() || wp_doing_ajax() || wp_installing() ) {
+		return;
+	}
+
+	if ( get_option( 'gp_child_patched_patio_install_cols' ) ) {
+		return;
+	}
+
+	$post = get_page_by_path( 'wooden-ceiling-fans-covered-patios', OBJECT, 'post' );
+	if ( ! $post ) {
+		return;
+	}
+
+	if ( false !== strpos( $post->post_content, 'patio-install-columns' ) ) {
+		update_option( 'gp_child_patched_patio_install_cols', (int) $post->ID, false );
+		return;
+	}
+
+	$pattern      = '/(<!-- wp:heading -->\s*<h2 class="wp-block-heading">Important Installation Considerations<\/h2>\s*<!-- \/wp:heading -->\s*)(<!-- wp:image[\s\S]*?<!-- \/wp:image -->\s*)(<!-- wp:paragraph -->\s*<p>A few simple checks[\s\S]*?<!-- \/wp:paragraph -->\s*)(<!-- wp:list -->[\s\S]*?<!-- \/wp:list -->\s*)/';
+	$replacement  = '$1<!-- wp:columns {"verticalAlignment":"top","className":"patio-install-columns"} -->' . "\n";
+	$replacement .= '<div class="wp-block-columns patio-install-columns are-vertically-aligned-top">' . "\n";
+	$replacement .= '<!-- wp:column {"verticalAlignment":"top","width":"46%"} -->' . "\n";
+	$replacement .= '<div class="wp-block-column is-vertically-aligned-top" style="flex-basis:46%">' . "\n";
+	$replacement .= '$2</div>' . "\n";
+	$replacement .= '<!-- /wp:column -->' . "\n\n";
+	$replacement .= '<!-- wp:column {"verticalAlignment":"top","width":"54%"} -->' . "\n";
+	$replacement .= '<div class="wp-block-column is-vertically-aligned-top" style="flex-basis:54%">' . "\n";
+	$replacement .= '$3$4</div>' . "\n";
+	$replacement .= '<!-- /wp:column -->' . "\n";
+	$replacement .= '</div>' . "\n";
+	$replacement .= '<!-- /wp:columns -->' . "\n\n";
+
+	$updated = preg_replace( $pattern, $replacement, $post->post_content, 1, $count );
+	if ( empty( $count ) || ! is_string( $updated ) ) {
+		return;
+	}
+
+	wp_update_post(
+		array(
+			'ID'           => $post->ID,
+			'post_content' => $updated,
+		)
+	);
+	update_option( 'gp_child_patched_patio_install_cols', (int) $post->ID, false );
 }

@@ -1010,21 +1010,36 @@ body.woocommerce-checkout table.wc-block-cart-items td {
 }
 
 /* Equal-height image rows on the patio post. */
-.single-post.postid-10778 .entry-content .wp-block-columns {
+.single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) {
     align-items: stretch;
 }
 
-.single-post.postid-10778 .entry-content .wp-block-columns .wp-block-image {
+.single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) .wp-block-image {
     margin: 0;
 }
 
-.single-post.postid-10778 .entry-content .wp-block-columns .wp-block-image img {
+.single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) .wp-block-image img {
     display: block;
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 5;
     object-fit: cover;
     object-position: center top;
+}
+
+/* Installation section: photo beside the checklist, as in the source doc. */
+.single-post.postid-10778 .entry-content .patio-install-columns {
+    align-items: flex-start;
+}
+
+.single-post.postid-10778 .entry-content .patio-install-columns .wp-block-image {
+    margin: 0;
+}
+
+.single-post.postid-10778 .entry-content .patio-install-columns .wp-block-image img {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 /* Hide blog comment form/list (also covers cached HTML until PHP filters apply). */
