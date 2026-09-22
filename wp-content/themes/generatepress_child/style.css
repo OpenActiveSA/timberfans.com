@@ -991,11 +991,22 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     font-size: 33px;
     text-transform: none;
     line-height: 1.3em;
-    margin-top: 2.25em;
+    margin-top: 2.5em;
 }
 
 .single-post.postid-10778 .entry-content .wp-block-image + h2.wp-block-heading {
     margin-top: 2.75em;
+}
+
+.single-post.postid-10778 .entry-content h2.wp-block-heading::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 28px;
+    margin: 0 0 0.55em;
+    background-color: currentColor;
+    -webkit-mask: url("assets/icons/tf-mark.svg") center / contain no-repeat;
+    mask: url("assets/icons/tf-mark.svg") center / contain no-repeat;
 }
 
 /* Equal-height image rows on the patio post. */
