@@ -996,6 +996,10 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     margin-top: 0.35em;
 }
 
+.single-post.postid-10778 .entry-content img[class*="gb-media-"] + p.gb-text {
+    margin-top: 1.75em;
+}
+
 /* Equal-height image rows on the patio post. */
 .single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) {
     align-items: stretch;
