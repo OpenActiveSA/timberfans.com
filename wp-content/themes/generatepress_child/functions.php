@@ -962,5 +962,28 @@ function gp_child_print_delayed_widget_loader() {
 	<?php
 }
 
+/**
+ * Hide the featured image on the covered-patio blog post.
+ * Keep the thumbnail for archives, cards, and social/OG.
+ */
+add_action( 'wp', 'gp_child_hide_patio_featured_image' );
+function gp_child_hide_patio_featured_image() {
+	if ( ! is_singular( 'post' ) ) {
+		return;
+	}
+
+	if ( get_post_field( 'post_name' ) !== 'wooden-ceiling-fans-covered-patios' ) {
+		return;
+	}
+
+	remove_action( 'generate_before_content', 'generate_featured_page_header_inside_single', 10 );
+	add_filter( 'body_class', 'gp_child_hide_featured_image_body_class' );
+}
+
+function gp_child_hide_featured_image_body_class( $classes ) {
+	$classes[] = 'hide-featured-image';
+	return $classes;
+}
+
 require_once get_stylesheet_directory() . '/inc/seed-patio-blog-post.php';
 

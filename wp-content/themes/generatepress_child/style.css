@@ -979,3 +979,9 @@ body.woocommerce-checkout table.wc-block-cart-items td {
 
     
 }
+
+/* Hide featured image on the covered-patio post (duplicate of first content image). */
+.single-post.hide-featured-image .inside-article > .featured-image.page-header-image-single,
+.single-post.postid-10778 .inside-article > .featured-image.page-header-image-single {
+    display: none;
+}
