@@ -986,14 +986,14 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     display: none;
 }
 
-/* Patio post: space above each section line divider. */
+/* Patio post: tighter gap above the line, more space before the heading. */
 .single-post.postid-10778 .entry-content .wp-block-separator {
-    margin-top: 4em;
-    margin-bottom: 1.5em;
+    margin-top: 1.75em;
+    margin-bottom: 2.75em;
 }
 
 .single-post.postid-10778 .entry-content h3.gb-text {
-    margin-top: 0.65em;
+    margin-top: 0.35em;
 }
 
 /* Equal-height image rows on the patio post. */
