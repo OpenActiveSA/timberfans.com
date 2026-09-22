@@ -986,27 +986,14 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     display: none;
 }
 
-/* Patio post section headings: match other blog posts, not 50px uppercase H2. */
-.single-post.postid-10778 .entry-content h2.wp-block-heading {
-    font-size: 33px;
-    text-transform: none;
-    line-height: 1.3em;
-    margin-top: 2.5em;
-}
-
-.single-post.postid-10778 .entry-content .wp-block-image + h2.wp-block-heading {
+/* Patio post: space above each section line divider. */
+.single-post.postid-10778 .entry-content .wp-block-separator {
     margin-top: 2.75em;
+    margin-bottom: 1.1em;
 }
 
-.single-post.postid-10778 .entry-content h2.wp-block-heading::before {
-    content: "";
-    display: block;
-    width: 32px;
-    height: 32px;
-    margin: 0 0 0.6em;
-    background-color: currentColor;
-    -webkit-mask: url("assets/icons/tf-mark.svg?v=2") center / contain no-repeat;
-    mask: url("assets/icons/tf-mark.svg?v=2") center / contain no-repeat;
+.single-post.postid-10778 .entry-content h3.gb-text {
+    margin-top: 0.35em;
 }
 
 /* Equal-height image rows on the patio post. */
@@ -1014,11 +1001,7 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     align-items: stretch;
 }
 
-.single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) .wp-block-image {
-    margin: 0;
-}
-
-.single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) .wp-block-image img {
+.single-post.postid-10778 .entry-content .wp-block-columns:not(.patio-install-columns) img {
     display: block;
     width: 100%;
     height: auto;
@@ -1032,14 +1015,15 @@ body.woocommerce-checkout table.wc-block-cart-items td {
     align-items: flex-start;
 }
 
-.single-post.postid-10778 .entry-content .patio-install-columns .wp-block-image {
-    margin: 0;
-}
-
-.single-post.postid-10778 .entry-content .patio-install-columns .wp-block-image img {
+.single-post.postid-10778 .entry-content .patio-install-columns img {
     display: block;
     width: 100%;
     height: auto;
+}
+
+.single-post.postid-10778 .entry-content ul[class*="gb-element-"] {
+    list-style: disc;
+    padding-left: 1.25em;
 }
 
 /* Hide blog comment form/list (also covers cached HTML until PHP filters apply). */
