@@ -962,3 +962,5 @@ function gp_child_print_delayed_widget_loader() {
 	<?php
 }
 
+require_once get_stylesheet_directory() . '/inc/seed-patio-blog-post.php';
+
