@@ -1013,24 +1013,30 @@ function gp_child_hide_blog_comment_count( $count, $post_id ) {
 }
 
 /**
- * Facebook share image for the homepage.
- *
- * Facebook's crawler gets HTTP 429 on /uploads/ and /themes/ static files,
- * then falls back to a random product photo. Serve a 1200x630 JPEG through
- * WordPress so the crawler can fetch it the same way it fetches HTML.
+ * Facebook/Twitter crawlers time out on the 1MB homepage and get HTTP 418
+ * from host bot protection, then reuse an old Tropica product image.
+ * Serve a tiny Open Graph document (and the share JPEG) before the full page.
  */
+function gp_child_is_share_crawler() {
+	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) $_SERVER['HTTP_USER_AGENT'] : '';
+	return (bool) preg_match( '/facebookexternalhit|Facebot|Twitterbot|LinkedInBot/i', $ua );
+}
+
+function gp_child_request_path() {
+	if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+		return '';
+	}
+	$path = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH );
+	return is_string( $path ) ? untrailingslashit( $path ) : '';
+}
+
 function gp_child_home_og_image_url() {
 	return home_url( '/og-share.jpg' );
 }
 
 add_action( 'init', 'gp_child_serve_og_share_image', 0 );
 function gp_child_serve_og_share_image() {
-	if ( empty( $_SERVER['REQUEST_URI'] ) ) {
-		return;
-	}
-
-	$path = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH );
-	if ( ! is_string( $path ) || '/og-share.jpg' !== untrailingslashit( $path ) ) {
+	if ( '/og-share.jpg' !== gp_child_request_path() ) {
 		return;
 	}
 
@@ -1039,11 +1045,63 @@ function gp_child_serve_og_share_image() {
 		return;
 	}
 
+	status_header( 200 );
 	header( 'Content-Type: image/jpeg' );
 	header( 'Content-Length: ' . (string) filesize( $file ) );
 	header( 'Cache-Control: public, max-age=604800, immutable' );
 	header( 'X-Robots-Tag: noindex' );
 	readfile( $file );
+	exit;
+}
+
+add_action( 'init', 'gp_child_serve_share_crawler_home', 1 );
+function gp_child_serve_share_crawler_home() {
+	if ( ! gp_child_is_share_crawler() ) {
+		return;
+	}
+
+	$path = gp_child_request_path();
+	if ( '' !== $path && '/' !== $path ) {
+		return;
+	}
+
+	$page_id = (int) get_option( 'page_on_front' );
+	$title   = $page_id ? (string) get_post_meta( $page_id, '_yoast_wpseo_title', true ) : '';
+	$desc    = $page_id ? (string) get_post_meta( $page_id, '_yoast_wpseo_metadesc', true ) : '';
+	if ( '' === $title ) {
+		$title = 'Luxury wooden ceiling fans | Timber Fans';
+	}
+	if ( '' === $desc ) {
+		$desc = 'Premium wooden ceiling fans expertly crafted for beautiful homes, boutique hotels and lodges throughout Southern Africa and abroad. Timeless design, quiet luxury and exceptional performance for lasting comfort.';
+	}
+
+	$url   = home_url( '/' );
+	$image = gp_child_home_og_image_url();
+
+	status_header( 200 );
+	header( 'Content-Type: text/html; charset=UTF-8' );
+	header( 'Cache-Control: public, max-age=300' );
+
+	echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">';
+	echo '<title>' . esc_html( $title ) . '</title>';
+	echo '<link rel="canonical" href="' . esc_url( $url ) . '">';
+	echo '<meta property="og:locale" content="en_US">';
+	echo '<meta property="og:type" content="website">';
+	echo '<meta property="og:site_name" content="Timber Fans">';
+	echo '<meta property="og:url" content="' . esc_url( $url ) . '">';
+	echo '<meta property="og:title" content="' . esc_attr( $title ) . '">';
+	echo '<meta property="og:description" content="' . esc_attr( $desc ) . '">';
+	echo '<meta property="og:image" content="' . esc_url( $image ) . '">';
+	echo '<meta property="og:image:secure_url" content="' . esc_url( $image ) . '">';
+	echo '<meta property="og:image:type" content="image/jpeg">';
+	echo '<meta property="og:image:width" content="1200">';
+	echo '<meta property="og:image:height" content="630">';
+	echo '<meta property="og:image:alt" content="Timber Fans wooden ceiling fans">';
+	echo '<meta name="twitter:card" content="summary_large_image">';
+	echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '">';
+	echo '<meta name="twitter:description" content="' . esc_attr( $desc ) . '">';
+	echo '<meta name="twitter:image" content="' . esc_url( $image ) . '">';
+	echo '</head><body></body></html>';
 	exit;
 }
 
@@ -1067,16 +1125,6 @@ function gp_child_facebook_og_image_alt( $alt ) {
 		return 'Timber Fans wooden ceiling fans';
 	}
 	return $alt;
-}
-
-add_action( 'wp_head', 'gp_child_facebook_og_image_dimensions', 1 );
-function gp_child_facebook_og_image_dimensions() {
-	if ( ! is_front_page() && ! is_home() ) {
-		return;
-	}
-	echo '<meta property="og:image:type" content="image/jpeg" />' . "\n";
-	echo '<meta property="og:image:width" content="1200" />' . "\n";
-	echo '<meta property="og:image:height" content="630" />' . "\n";
 }
 
 require_once get_stylesheet_directory() . '/inc/seed-patio-blog-post.php';
