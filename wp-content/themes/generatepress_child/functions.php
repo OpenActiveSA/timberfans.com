@@ -1014,8 +1014,9 @@ function gp_child_hide_blog_comment_count( $count, $post_id ) {
 
 /**
  * Facebook/Twitter crawlers time out on the 1MB homepage and get HTTP 418
- * from host bot protection, then reuse an old Tropica product image.
- * Serve a tiny Open Graph document (and the share JPEG) before the full page.
+ * from host bot protection. Serve a tiny Open Graph document before the
+ * full page. Image URLs on this host 429 facebookexternalhit, so the share
+ * JPEG is exposed via wsrv.nl (it fetches with a normal UA).
  */
 function gp_child_is_share_crawler() {
 	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) $_SERVER['HTTP_USER_AGENT'] : '';
@@ -1030,19 +1031,35 @@ function gp_child_request_path() {
 	return is_string( $path ) ? untrailingslashit( $path ) : '';
 }
 
+function gp_child_home_og_image_file() {
+	return get_stylesheet_directory() . '/assets/images/og-home.jpg';
+}
+
+function gp_child_home_og_image_origin_url() {
+	return get_stylesheet_directory_uri() . '/assets/images/og-home.jpg';
+}
+
 function gp_child_home_og_image_url() {
-	return home_url( '/og-share.jpg' );
+	// Apache 429s facebookexternalhit on every image URL on this host, so
+	// Facebook gets the title/description and then a blank photo. wsrv.nl
+	// fetches the JPEG with a normal UA and Facebook can download it there.
+	return 'https://wsrv.nl/?url=' . rawurlencode( gp_child_home_og_image_origin_url() ) . '&output=jpg';
 }
 
 add_action( 'init', 'gp_child_serve_og_share_image', 0 );
 function gp_child_serve_og_share_image() {
-	if ( '/og-share.jpg' !== gp_child_request_path() ) {
+	$path = gp_child_request_path();
+	if ( '/og-share.jpg' !== $path && '/og-share' !== $path ) {
 		return;
 	}
 
-	$file = get_stylesheet_directory() . '/assets/images/og-home.jpg';
+	$file = gp_child_home_og_image_file();
 	if ( ! is_readable( $file ) ) {
 		return;
+	}
+
+	while ( ob_get_level() > 0 ) {
+		ob_end_clean();
 	}
 
 	status_header( 200 );
@@ -1101,7 +1118,9 @@ function gp_child_serve_share_crawler_home() {
 	echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '">';
 	echo '<meta name="twitter:description" content="' . esc_attr( $desc ) . '">';
 	echo '<meta name="twitter:image" content="' . esc_url( $image ) . '">';
-	echo '</head><body></body></html>';
+	echo '</head><body>';
+	echo '<img src="' . esc_url( $image ) . '" alt="' . esc_attr( $title ) . '" width="1200" height="630">';
+	echo '</body></html>';
 	exit;
 }
 
