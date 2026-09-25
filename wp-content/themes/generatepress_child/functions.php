@@ -1012,5 +1012,18 @@ function gp_child_hide_blog_comment_count( $count, $post_id ) {
 	return $count;
 }
 
+/**
+ * Facebook ignores SVG Open Graph images, then shows a title-only chip
+ * with no description. Replace SVG social images with a PNG of the HQ mark.
+ */
+add_filter( 'wpseo_opengraph_image', 'gp_child_facebook_png_og_image' );
+add_filter( 'wpseo_twitter_image', 'gp_child_facebook_png_og_image' );
+function gp_child_facebook_png_og_image( $url ) {
+	if ( is_string( $url ) && preg_match( '/\.svg(?:\?|$)/i', $url ) ) {
+		return get_stylesheet_directory_uri() . '/assets/images/og-hq.png';
+	}
+	return $url;
+}
+
 require_once get_stylesheet_directory() . '/inc/seed-patio-blog-post.php';
 
