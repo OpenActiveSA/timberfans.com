@@ -1043,7 +1043,7 @@ function gp_child_home_og_image_url() {
 	// Apache 429s facebookexternalhit on every image URL on this host, so
 	// Facebook gets the title/description and then a blank photo. wsrv.nl
 	// fetches the JPEG with a normal UA and Facebook can download it there.
-	return 'https://wsrv.nl/?url=' . rawurlencode( gp_child_home_og_image_origin_url() ) . '&output=jpg';
+	return 'https://wsrv.nl/?url=' . rawurlencode( gp_child_home_og_image_origin_url() );
 }
 
 add_action( 'init', 'gp_child_serve_og_share_image', 0 );
