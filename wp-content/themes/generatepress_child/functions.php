@@ -1014,11 +1014,37 @@ function gp_child_hide_blog_comment_count( $count, $post_id ) {
 
 /**
  * Facebook share image for the homepage.
- * SVG social images are ignored, and the Instagram feed placeholder
- * was being picked up instead. Use a JPEG Facebook accepts.
+ *
+ * Facebook's crawler gets HTTP 429 on /uploads/ and /themes/ static files,
+ * then falls back to a random product photo. Serve a 1200x630 JPEG through
+ * WordPress so the crawler can fetch it the same way it fetches HTML.
  */
 function gp_child_home_og_image_url() {
-	return content_url( '/uploads/2025/06/9U7A6554-HDR-scaled.jpg' );
+	return home_url( '/og-share.jpg' );
+}
+
+add_action( 'init', 'gp_child_serve_og_share_image', 0 );
+function gp_child_serve_og_share_image() {
+	if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+		return;
+	}
+
+	$path = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH );
+	if ( ! is_string( $path ) || '/og-share.jpg' !== untrailingslashit( $path ) ) {
+		return;
+	}
+
+	$file = get_stylesheet_directory() . '/assets/images/og-home.jpg';
+	if ( ! is_readable( $file ) ) {
+		return;
+	}
+
+	header( 'Content-Type: image/jpeg' );
+	header( 'Content-Length: ' . (string) filesize( $file ) );
+	header( 'Cache-Control: public, max-age=604800, immutable' );
+	header( 'X-Robots-Tag: noindex' );
+	readfile( $file );
+	exit;
 }
 
 add_filter( 'wpseo_opengraph_image', 'gp_child_facebook_og_image', 20 );
@@ -1041,6 +1067,16 @@ function gp_child_facebook_og_image_alt( $alt ) {
 		return 'Timber Fans wooden ceiling fans';
 	}
 	return $alt;
+}
+
+add_action( 'wp_head', 'gp_child_facebook_og_image_dimensions', 1 );
+function gp_child_facebook_og_image_dimensions() {
+	if ( ! is_front_page() && ! is_home() ) {
+		return;
+	}
+	echo '<meta property="og:image:type" content="image/jpeg" />' . "\n";
+	echo '<meta property="og:image:width" content="1200" />' . "\n";
+	echo '<meta property="og:image:height" content="630" />' . "\n";
 }
 
 require_once get_stylesheet_directory() . '/inc/seed-patio-blog-post.php';
