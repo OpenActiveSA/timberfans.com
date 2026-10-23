@@ -513,37 +513,9 @@ function gp_child_enqueue_ajax_add_to_cart() {
 
 	$js = <<<'JS'
 (function () {
-	function disableAutoOpenOnAllMiniCarts() {
-		document.querySelectorAll('.wc-block-mini-cart').forEach(function (el) {
-			el.dataset.addToCartBehaviour = 'none';
-		});
-	}
-
-	function visibleMiniCartButton() {
-		var buttons = document.querySelectorAll('.wc-block-mini-cart__button');
-		for (var i = 0; i < buttons.length; i++) {
-			if (buttons[i].offsetParent !== null) {
-				return buttons[i];
-			}
-		}
-		return buttons[0] || null;
-	}
-
-	function openVisibleMiniCart() {
-		var btn = visibleMiniCartButton();
-		if (btn) {
-			btn.click();
-		}
-	}
-
-	disableAutoOpenOnAllMiniCarts();
-
-	// Native form POST is what actually puts the fan in the Woo session.
-	// The previous AJAX intercept left the header mini-cart on a stale empty
-	// Store API cart, so it looked like nothing was added.
-	if (document.querySelector('.woocommerce-notices-wrapper .woocommerce-message')) {
-		setTimeout(openVisibleMiniCart, 400);
-	}
+	document.querySelectorAll('.wc-block-mini-cart').forEach(function (el) {
+		el.dataset.addToCartBehaviour = 'none';
+	});
 })();
 JS;
 
@@ -574,6 +546,42 @@ function gp_child_rocket_exclude_store_api( $urls ) {
 	$urls[] = '/wp-json/wc/store/(.*)';
 	$urls[] = '/wc/store/(.*)';
 	return $urls;
+}
+
+/**
+ * The header mini-cart reads GET /wp-json/wc/store/v1/cart. A cached empty
+ * response makes Add to cart look like a no-op even when WC()->cart has items.
+ */
+add_action( 'woocommerce_add_to_cart', 'gp_child_purge_cached_store_cart' );
+add_action( 'woocommerce_cart_item_removed', 'gp_child_purge_cached_store_cart' );
+add_action( 'woocommerce_cart_item_restored', 'gp_child_purge_cached_store_cart' );
+add_action( 'woocommerce_after_cart_item_quantity_update', 'gp_child_purge_cached_store_cart' );
+add_action( 'init', 'gp_child_purge_cached_store_cart_once', 20 );
+
+function gp_child_store_cart_cache_urls() {
+	return array_filter(
+		array(
+			home_url( '/wp-json/wc/store/v1/cart' ),
+			home_url( '/wp-json/wc/store/v1/cart/' ),
+			rest_url( 'wc/store/v1/cart' ),
+		)
+	);
+}
+
+function gp_child_purge_cached_store_cart() {
+	$urls = gp_child_store_cart_cache_urls();
+	if ( function_exists( 'rocket_clean_files' ) ) {
+		rocket_clean_files( $urls );
+	}
+}
+
+function gp_child_purge_cached_store_cart_once() {
+	if ( get_option( 'gp_child_purged_store_cart_cache_v1' ) ) {
+		return;
+	}
+
+	gp_child_purge_cached_store_cart();
+	update_option( 'gp_child_purged_store_cart_cache_v1', '1', false );
 }
 
 // Clear any leftover auto-open cookie from earlier experiments.
