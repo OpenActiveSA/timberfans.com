@@ -372,11 +372,8 @@ if ( defined( 'MAINTENANCE_MODE' ) && MAINTENANCE_MODE === true ) {
 
 /**
  * ---------------------------------------------------------------------------
- * AJAX add-to-cart on single product pages, then open the *visible* mini-cart.
- *
- * There are two mini-cart instances in the header. Woo's open_drawer event only
- * targets the first one (often blank). The filled drawer opens when we click
- * the visible header cart button — same as a real user click.
+ * Mini-cart: do not auto-open the first (often hidden) instance. After a real
+ * add-to-cart page reload, open the visible header cart button.
  * ---------------------------------------------------------------------------
  */
 add_filter( 'render_block_woocommerce/mini-cart', 'gp_child_mini_cart_disable_auto_open', 10, 2 );
@@ -515,7 +512,7 @@ function gp_child_enqueue_ajax_add_to_cart() {
 	wp_enqueue_script( 'wc-add-to-cart' );
 
 	$js = <<<'JS'
-(function ($) {
+(function () {
 	function disableAutoOpenOnAllMiniCarts() {
 		document.querySelectorAll('.wc-block-mini-cart').forEach(function (el) {
 			el.dataset.addToCartBehaviour = 'none';
@@ -539,108 +536,44 @@ function gp_child_enqueue_ajax_add_to_cart() {
 		}
 	}
 
-	function getCartItemsCount() {
-		return fetch('/wp-json/wc/store/v1/cart', {
-			credentials: 'same-origin',
-			headers: { 'Accept': 'application/json' }
-		}).then(function (r) { return r.json(); }).then(function (cart) {
-			return cart && typeof cart.items_count !== 'undefined' ? cart.items_count : 0;
-		}).catch(function () { return 0; });
-	}
-
 	disableAutoOpenOnAllMiniCarts();
 
-	$(document).on('submit', 'form.cart', function (e) {
-		var $form = $(this);
-		var submitter = e.originalEvent && e.originalEvent.submitter ? e.originalEvent.submitter : null;
-
-		if (submitter && !$(submitter).hasClass('single_add_to_cart_button')) {
-			return;
-		}
-		if ($form.closest('.product-type-external').length) {
-			return;
-		}
-
-		var $button = $form.find('.single_add_to_cart_button');
-		if (!$button.length || $button.hasClass('disabled') || $button.prop('disabled')) {
-			return;
-		}
-
-		var $variationId = $form.find('input.variation_id, input[name="variation_id"]');
-		if ($variationId.length && !parseInt($variationId.val(), 10)) {
-			return;
-		}
-
-		e.preventDefault();
-		disableAutoOpenOnAllMiniCarts();
-
-		$('.woocommerce-notices-wrapper .woocommerce-error, .woocommerce-notices-wrapper .woocommerce-message, .woocommerce-error, .woocommerce-message').filter(function () {
-			return /choose product options|added to your cart/i.test($(this).text());
-		}).remove();
-
-		$button.removeClass('added');
-		$button.prop('disabled', true);
-
-		var beforeCountPromise = getCartItemsCount();
-		var postUrl = ($form.attr('action') && $form.attr('action').length) ? $form.attr('action') : window.location.href;
-
-		$.ajax({
-			type: 'POST',
-			url: postUrl,
-			data: $form.serialize(),
-			success: function (html) {
-				$button.prop('disabled', false);
-
-				var $response = $('<div>').append($.parseHTML(html, document, true));
-
-				if ($response.find('.woocommerce-error').length) {
-					var $target = $('.woocommerce-notices-wrapper').first();
-					if (!$target.length) {
-						$target = $form.closest('.summary, .product').first();
-					}
-					$target.prepend($response.find('.woocommerce-error').first());
-					return;
-				}
-
-				beforeCountPromise.then(function (beforeCount) {
-					return getCartItemsCount().then(function (afterCount) {
-						return { beforeCount: beforeCount, afterCount: afterCount };
-					});
-				}).then(function (counts) {
-					var added = counts.afterCount > counts.beforeCount;
-					var successNotice = $response.find('.woocommerce-message').filter(function () {
-						return /added to your cart/i.test($(this).text());
-					}).length > 0;
-
-					if (!added && !successNotice) {
-						$form.off('submit');
-						$form.get(0).submit();
-						return;
-					}
-
-					$button.addClass('added');
-
-					// Refresh cart data without auto-opening the first (blank) instance.
-					disableAutoOpenOnAllMiniCarts();
-					document.body.dispatchEvent(new CustomEvent('wc-blocks_adding_to_cart', { bubbles: true }));
-					$(document.body).trigger('added_to_cart', [null, null, $button]);
-
-					// Open only the visible header cart button (the one that works when clicked).
-					setTimeout(openVisibleMiniCart, 300);
-				});
-			},
-			error: function () {
-				$button.prop('disabled', false);
-				$form.off('submit');
-				$form.get(0).submit();
-			}
-		});
-	});
-})(jQuery);
+	// Native form POST is what actually puts the fan in the Woo session.
+	// The previous AJAX intercept left the header mini-cart on a stale empty
+	// Store API cart, so it looked like nothing was added.
+	if (document.querySelector('.woocommerce-notices-wrapper .woocommerce-message')) {
+		setTimeout(openVisibleMiniCart, 400);
+	}
+})();
 JS;
 
 	$handle = wp_script_is( 'wc-add-to-cart', 'enqueued' ) ? 'wc-add-to-cart' : 'jquery';
 	wp_add_inline_script( $handle, $js, 'after' );
+}
+
+add_filter( 'rest_post_dispatch', 'gp_child_store_api_nocache_headers', 10, 3 );
+function gp_child_store_api_nocache_headers( $response, $server, $request ) {
+	if ( ! $request instanceof WP_REST_Request ) {
+		return $response;
+	}
+
+	$route = $request->get_route();
+	if ( ! is_string( $route ) || strpos( $route, '/wc/store' ) === false ) {
+		return $response;
+	}
+
+	$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+	$response->header( 'Pragma', 'no-cache' );
+	$response->header( 'Vary', 'Cookie' );
+
+	return $response;
+}
+
+add_filter( 'rocket_cache_reject_uri', 'gp_child_rocket_exclude_store_api' );
+function gp_child_rocket_exclude_store_api( $urls ) {
+	$urls[] = '/wp-json/wc/store/(.*)';
+	$urls[] = '/wc/store/(.*)';
+	return $urls;
 }
 
 // Clear any leftover auto-open cookie from earlier experiments.
