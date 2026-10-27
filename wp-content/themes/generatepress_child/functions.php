@@ -584,6 +584,19 @@ function gp_child_purge_cached_store_cart_once() {
 	update_option( 'gp_child_purged_store_cart_cache_v1', '1', false );
 }
 
+add_action( 'init', 'gp_child_purge_rocket_variation_note_once', 21 );
+function gp_child_purge_rocket_variation_note_once() {
+	if ( get_option( 'gp_child_purged_variation_note_v1' ) ) {
+		return;
+	}
+
+	if ( function_exists( 'rocket_clean_domain' ) ) {
+		rocket_clean_domain();
+	}
+
+	update_option( 'gp_child_purged_variation_note_v1', '1', false );
+}
+
 // Clear any leftover auto-open cookie from earlier experiments.
 add_action( 'init', 'gp_child_clear_legacy_open_mini_cart_cookie', 1 );
 function gp_child_clear_legacy_open_mini_cart_cookie() {

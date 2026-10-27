@@ -1468,6 +1468,15 @@ form.cart .reset_variations {
     display: none !important;
 }
 
+.oa-tfp-variation-note {
+    display: none;
+    margin: 0.4rem 0 0.85rem;
+    max-width: 28em;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #5c5856;
+}
+
 /* Price display inside label */
 .woocommerce .wc-pao-addon-price {
     font-size: 12px;

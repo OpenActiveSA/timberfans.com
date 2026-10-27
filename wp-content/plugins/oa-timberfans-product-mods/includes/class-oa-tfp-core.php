@@ -248,6 +248,7 @@ class OA_TFP_Core {
         }
         
         echo '<div class="oa-tfp-stock-status" style="display:none;"></div>';
+        echo '<div class="oa-tfp-variation-note" style="display:none;" role="note"></div>';
         echo '<div class="oa-tfp-custom-subtotal" style="display:none;">';
         echo '<div class="oa-tfp-subtotal-line">';
         echo '<span class="oa-tfp-subtotal-label">Price:</span>';
@@ -378,6 +379,7 @@ class OA_TFP_Core {
             var $customSubtotal = $('.oa-tfp-custom-subtotal');
             var $subtotalAmount = $('.oa-tfp-subtotal-amount');
             var $stockStatus = $('.oa-tfp-stock-status');
+            var $variationNote = $('.oa-tfp-variation-note');
             var $noVariationPhoto = $('.oa-tfp-no-variation-photo');
                 
             // Get all variations data
@@ -405,6 +407,7 @@ class OA_TFP_Core {
             function updateStockStatus() {
                 if (!state.currentVariation) {
                     $stockStatus.hide();
+                    updateVariationNote();
                     return;
                 }
                 
@@ -417,6 +420,28 @@ class OA_TFP_Core {
                 } else {
                     $stockStatus.text('In Stock').show();
                 }
+
+                updateVariationNote();
+            }
+
+            // Show the WooCommerce variation Description (e.g. custom paint surcharge).
+            function updateVariationNote() {
+                if (!$variationNote.length) {
+                    return;
+                }
+
+                if (!state.currentVariation || !state.currentVariation.variation_description) {
+                    $variationNote.hide().empty();
+                    return;
+                }
+
+                var text = $('<div>').html(state.currentVariation.variation_description).text().replace(/\s+/g, ' ').trim();
+                if (!text) {
+                    $variationNote.hide().empty();
+                    return;
+                }
+
+                $variationNote.text(text).show();
             }
             
             // Update variation photo notice
@@ -513,6 +538,7 @@ class OA_TFP_Core {
                     }
                 } else {
                     $stockStatus.hide();
+                    $variationNote.hide().empty();
                     $noVariationPhoto.hide();
                 }
                 
@@ -567,6 +593,7 @@ class OA_TFP_Core {
                     // Only hide if there's no variation
                     if (!state.currentVariation) {
                         $stockStatus.hide();
+                        $variationNote.hide().empty();
                     } else {
                         // Ensure stock status is still shown (for "Made to order" or "In Stock")
                         updateStockStatus();
@@ -955,6 +982,7 @@ class OA_TFP_Core {
                         }
                         $customSubtotal.hide();
                         $stockStatus.hide();
+                        $variationNote.hide().empty();
                         $noVariationPhoto.hide();
                     }
                 }
@@ -1264,6 +1292,7 @@ class OA_TFP_Core {
                 state.currentVariation = null;
                 $customSubtotal.hide();
                 $stockStatus.hide();
+                $variationNote.hide().empty();
                 $noVariationPhoto.hide();
                 updateButtons('none');
             });
