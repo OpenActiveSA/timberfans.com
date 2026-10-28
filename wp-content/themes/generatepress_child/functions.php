@@ -207,73 +207,6 @@ add_action( 'init', function() {
 }, 99 ); // High priority to run after plugins are loaded
 
 /**
- * Quote form (ID 1): send notifications from the site domain.
- *
- * Admin Notification was using the submitter as From. Gmail quotes arrived;
- * brad@timberfans.co.za quotes did not — receiving servers treat that From as
- * spoofing or an internal loop. Reply-To stays the customer so Reply works.
- */
-add_filter( 'gform_notification_1', 'gp_child_gf_quote_notification_from', 20, 3 );
-function gp_child_gf_quote_notification_from( $notification, $form, $entry ) {
-	$from = gp_child_gf_site_from_email();
-	if ( $from ) {
-		$notification['from']     = $from;
-		$notification['fromName'] = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
-	}
-
-	$is_admin = ! empty( $notification['name'] ) && $notification['name'] === 'Admin Notification';
-	if ( $is_admin ) {
-		$customer = gp_child_gf_entry_email( $form, $entry );
-		if ( $customer ) {
-			$notification['replyTo'] = $customer;
-		}
-	}
-
-	return $notification;
-}
-
-function gp_child_gf_site_from_email() {
-	$host = wp_parse_url( home_url(), PHP_URL_HOST );
-	$host = preg_replace( '/^www\./i', '', (string) $host );
-	if ( ! $host ) {
-		return '';
-	}
-
-	$admin = sanitize_email( get_option( 'admin_email' ) );
-	if ( $admin && class_exists( 'GFCommon' ) && GFCommon::email_domain_matches( $admin, $host ) ) {
-		return $admin;
-	}
-
-	return 'noreply@' . $host;
-}
-
-function gp_child_gf_entry_email( $form, $entry ) {
-	if ( empty( $form['fields'] ) || empty( $entry ) ) {
-		return '';
-	}
-
-	foreach ( $form['fields'] as $field ) {
-		if ( empty( $field->type ) || $field->type !== 'email' ) {
-			continue;
-		}
-		$value = rgar( $entry, (string) $field->id );
-		if ( is_email( $value ) ) {
-			return $value;
-		}
-	}
-
-	return '';
-}
-
-add_action( 'wp_mail_failed', 'gp_child_log_wp_mail_failed' );
-function gp_child_log_wp_mail_failed( $error ) {
-	if ( ! is_wp_error( $error ) ) {
-		return;
-	}
-	error_log( 'TimberFans wp_mail_failed: ' . $error->get_error_message() . ' ' . wp_json_encode( $error->get_error_data() ) );
-}
-
-/**
  * Gravity Forms: remove images from Fan options (nested form) section in one notification.
  * - "Admin Notification" = Fan options section has no images (rest of email unchanged).
  * - "Timber Fans Client" = keeps images.
@@ -295,28 +228,55 @@ function gp_child_gf_remove_images_from_notification( $email, $message_format, $
 		return $email;
 	}
 
-	try {
-		$email['message'] = gp_child_gf_strip_images_in_fan_options_section( $email['message'] );
-	} catch ( Throwable $e ) {
-		$email['message'] = preg_replace( '/<img\b[^>]*>/i', '', $email['message'] );
-		error_log( 'TimberFans quote admin image strip failed: ' . $e->getMessage() );
-	}
-
+	$email['message'] = gp_child_gf_strip_images_in_fan_options_section( $email['message'] );
 	return $email;
 }
 
 /**
- * Strip product images from the admin quote email. Nested-form HTML with
- * variation photos regularly exceeds host message limits; regex avoids
- * DOMDocument fatals that would abort the send.
+ * Remove <img> tags only inside the Fan options (nested) section of the email HTML.
+ * Nested section is wrapped in a table with style containing "faebd2" (GP Nested Forms markup).
  */
 function gp_child_gf_strip_images_in_fan_options_section( $html ) {
 	if ( strpos( $html, '<img' ) === false ) {
 		return $html;
 	}
+	if ( strpos( $html, 'faebd2' ) === false ) {
+		return $html;
+	}
 
-	$stripped = preg_replace( '/<img\b[^>]*>/i', '', $html );
-	return is_string( $stripped ) && $stripped !== '' ? $stripped : $html;
+	$libxml_prev = libxml_use_internal_errors( true );
+	$doc = new DOMDocument();
+	$doc->loadHTML( '<?xml encoding="UTF-8"><div id="gf-email-root">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+	libxml_use_internal_errors( $libxml_prev );
+
+	$xpath = new DOMXPath( $doc );
+	$tables = $xpath->query( '//table[contains(@style, "faebd2")]' );
+	if ( ! $tables || $tables->length === 0 ) {
+		return $html;
+	}
+
+	foreach ( $tables as $table ) {
+		$imgs = $xpath->query( './/img', $table );
+		if ( ! $imgs ) {
+			continue;
+		}
+		for ( $i = $imgs->length - 1; $i >= 0; $i-- ) {
+			$img = $imgs->item( $i );
+			if ( $img && $img->parentNode ) {
+				$img->parentNode->removeChild( $img );
+			}
+		}
+	}
+
+	$root = $doc->getElementById( 'gf-email-root' );
+	if ( ! $root ) {
+		return $html;
+	}
+	$out = '';
+	foreach ( $root->childNodes as $child ) {
+		$out .= $doc->saveHTML( $child );
+	}
+	return $out;
 }
 
 /**
