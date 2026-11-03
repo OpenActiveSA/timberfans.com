@@ -34,6 +34,7 @@ jobs:
             oa-elements
             oa-gp-header-mods
             oa-merchant-feed
+            oa-quote-inline-fans
             oa-timberfans-gf-mod
             oa-timberfans-product-mods
             oa-woo-stock
