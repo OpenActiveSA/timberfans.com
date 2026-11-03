@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Open Agency: Elements
  * Description:     Optional shortcodes and features you can toggle for performance. Built for GeneratePress theme compatibility.
- * Version:         1.2.5
+ * Version:         1.2.6
  * Author:          Open Agency
  * Text Domain:     open-agency-elements
  * Domain Path:     /languages
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Plugin initialization
 
 // Define plugin constants
-define( 'OA_ELEMENTS_VERSION', '1.2.5' );
+define( 'OA_ELEMENTS_VERSION', '1.2.6' );
 define( 'OA_ELEMENTS_PLUGIN_FILE', __FILE__ );
 define( 'OA_ELEMENTS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OA_ELEMENTS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

@@ -387,20 +387,21 @@
 }
 
 /* Reserve side room for arrows so they stay clear of product text and
-   aren't clipped by .site / #page overflow-x. */
+   aren't clipped by .site / #page overflow-x.
+   Gap to products ≈ padding + offset (80 + -50 = 30px). */
 .oa-featured-carousel-wrap {
     position: relative;
-    padding-left: 60px;
-    padding-right: 60px;
+    padding-left: 80px;
+    padding-right: 80px;
     box-sizing: border-box;
 }
 
 .oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-prev {
-    left: -55px;
+    left: -50px;
 }
 
 .oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-next {
-    right: -55px;
+    right: -50px;
 }
 
 /* ==========================================================================
