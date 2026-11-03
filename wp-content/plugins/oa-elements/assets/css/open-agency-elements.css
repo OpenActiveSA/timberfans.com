@@ -386,14 +386,21 @@
     margin: 0 !important;
 }
 
-/* Default owl arrows sit at -70px and get clipped by .site / #page overflow-x.
-   Keep them inside the ~40px content gutter on desktop. */
+/* Reserve side room for arrows so they stay clear of product text and
+   aren't clipped by .site / #page overflow-x. */
+.oa-featured-carousel-wrap {
+    position: relative;
+    padding-left: 60px;
+    padding-right: 60px;
+    box-sizing: border-box;
+}
+
 .oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-prev {
-    left: -40px;
+    left: -55px;
 }
 
 .oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-next {
-    right: -40px;
+    right: -55px;
 }
 
 /* ==========================================================================
@@ -893,6 +900,19 @@
     }
     
     .owl-carousel .owl-nav .owl-next {
+        right: 10px;
+    }
+
+    .oa-featured-carousel-wrap {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-prev {
+        left: 10px;
+    }
+
+    .oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-next {
         right: 10px;
     }
 }
