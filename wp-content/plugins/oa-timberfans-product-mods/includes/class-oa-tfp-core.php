@@ -2118,13 +2118,23 @@ class OA_TFP_Core {
                                         
                                         // Update navigation buttons
                                         var totalPages = Math.ceil(variationImages.length / thumbnailsPerPage);
-                                        if ($prevBtn.length) {
-                                            $prevBtn.css('opacity', targetPage > 0 ? '1' : '0.3');
-                                            $prevBtn.css('pointer-events', targetPage > 0 ? 'auto' : 'none');
+                                        var needsNav = totalPages > 1;
+                                        var $galleryEl = $wrapper.find('.oa-tfp-thumbnail-gallery');
+                                        if ($galleryEl.length && $container.length && $galleryEl.width() > 0) {
+                                            needsNav = $container[0].scrollWidth > $galleryEl[0].clientWidth + 2;
                                         }
-                                        if ($nextBtn.length) {
-                                            $nextBtn.css('opacity', targetPage < totalPages - 1 ? '1' : '0.3');
-                                            $nextBtn.css('pointer-events', targetPage < totalPages - 1 ? 'auto' : 'none');
+                                        if (!needsNav) {
+                                            $wrapper.addClass('oa-tfp-no-thumb-nav');
+                                        } else {
+                                            $wrapper.removeClass('oa-tfp-no-thumb-nav');
+                                            if ($prevBtn.length) {
+                                                $prevBtn.css('opacity', targetPage > 0 ? '1' : '0.3');
+                                                $prevBtn.css('pointer-events', targetPage > 0 ? 'auto' : 'none');
+                                            }
+                                            if ($nextBtn.length) {
+                                                $nextBtn.css('opacity', targetPage < totalPages - 1 ? '1' : '0.3');
+                                                $nextBtn.css('pointer-events', targetPage < totalPages - 1 ? 'auto' : 'none');
+                                            }
                                         }
                                     }
                                 }
@@ -2511,6 +2521,18 @@ class OA_TFP_Core {
                             if (!variationImages || variationImages.length === 0) return;
                             
                             var totalPages = Math.ceil(variationImages.length / thumbnailsPerPage);
+                            var needsNav = totalPages > 1;
+                            var $galleryEl = $wrapper.find('.oa-tfp-thumbnail-gallery');
+                            if ($galleryEl.length && $container.length && $galleryEl.width() > 0) {
+                                needsNav = $container[0].scrollWidth > $galleryEl[0].clientWidth + 2;
+                            }
+                            
+                            if (!needsNav) {
+                                $wrapper.addClass('oa-tfp-no-thumb-nav');
+                                return;
+                            }
+                            
+                            $wrapper.removeClass('oa-tfp-no-thumb-nav');
                             if ($prevBtn.length) {
                                 $prevBtn.css('opacity', staticThumbnailPage > 0 ? '1' : '0.3');
                                 $prevBtn.css('pointer-events', staticThumbnailPage > 0 ? 'auto' : 'none');
@@ -2577,6 +2599,7 @@ class OA_TFP_Core {
                                 thumbWidth = (galleryContentWidth - (gap * 3) - buffer) / 4;
                                 $container.find('.oa-tfp-thumbnail-item').css('width', thumbWidth + 'px');
                                 updateThumbnailPosition();
+                                updateThumbnailNavigation();
                             }, 250);
                         });
                     }
@@ -3338,6 +3361,7 @@ class OA_TFP_Core {
                     // Update position after a short delay to ensure width is calculated
                     setTimeout(function() {
                         updateThumbnailPosition();
+                        updateThumbnailNavigation();
                     }, 100);
                     
                     console.log('OA TFP: Created thumbnail gallery with', thumbnailImages.length, 'images');
@@ -3406,8 +3430,24 @@ class OA_TFP_Core {
                 // Update navigation arrow states
                 function updateThumbnailNavigation() {
                     var totalPages = Math.ceil(thumbnailImages.length / thumbnailsPerPage);
+                    var $wrapper = $('.oa-tfp-thumbnail-gallery-wrapper');
+                    var $galleryEl = $('.oa-tfp-thumbnail-gallery');
+                    var $container = $('.oa-tfp-thumbnail-gallery-container');
                     var $prev = $('.oa-tfp-thumbnail-nav.prev');
                     var $next = $('.oa-tfp-thumbnail-nav.next');
+                    
+                    // Hide arrows entirely when all thumbnails fit (e.g. 3 images)
+                    var needsNav = totalPages > 1;
+                    if ($galleryEl.length && $container.length && $galleryEl.width() > 0) {
+                        needsNav = $container[0].scrollWidth > $galleryEl[0].clientWidth + 2;
+                    }
+                    
+                    if (!needsNav) {
+                        $wrapper.addClass('oa-tfp-no-thumb-nav');
+                        return;
+                    }
+                    
+                    $wrapper.removeClass('oa-tfp-no-thumb-nav');
                     
                     if (currentPage <= 0) {
                         $prev.addClass('disabled');
@@ -3569,6 +3609,7 @@ class OA_TFP_Core {
                                 }
                                 
                                 updateThumbnailPosition();
+                                updateThumbnailNavigation();
                             }
                         }
                     }, 250);

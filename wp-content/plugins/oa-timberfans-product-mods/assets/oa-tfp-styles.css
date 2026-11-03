@@ -259,6 +259,16 @@
     pointer-events: none;
 }
 
+/* Hide thumbnail arrows entirely when all thumbs fit on one page */
+.oa-tfp-thumbnail-gallery-wrapper.oa-tfp-no-thumb-nav {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.oa-tfp-thumbnail-gallery-wrapper.oa-tfp-no-thumb-nav .oa-tfp-thumbnail-nav {
+    display: none !important;
+}
+
 .oa-tfp-thumbnail-nav svg {
     width: 20px;
     height: 20px;
