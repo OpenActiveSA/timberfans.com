@@ -95,7 +95,26 @@ class OA_TFP_Shortcodes {
             return '';
         }
         
-        $total_images = count($secondary_gallery_ids);
+        // Build items first so scroll/arrows use valid rendered images only
+        // (meta can contain stale IDs that never output a tile).
+        $gallery_items_html = '';
+        $total_images = 0;
+        foreach ($secondary_gallery_ids as $image_id) {
+            if (!wp_attachment_is_image($image_id)) {
+                continue;
+            }
+            
+            $img = wp_get_attachment_image($image_id, 'large');
+            if ($img) {
+                $gallery_items_html .= '<div class="oa-tfp-product-gallery-item">' . $img . '</div>';
+                $total_images++;
+            }
+        }
+        
+        if ($total_images === 0) {
+            return '';
+        }
+        
         $has_scroll = $total_images > 3;
         
         $output = '<div class="oa-tfp-product-gallery-wrapper' . ($has_scroll ? ' oa-tfp-gallery-scrollable' : '') . '">';
@@ -113,17 +132,7 @@ class OA_TFP_Shortcodes {
         }
         
         $output .= '<div class="oa-tfp-product-gallery' . ($has_scroll ? ' oa-tfp-gallery-scroller' : '') . '">';
-        foreach ($secondary_gallery_ids as $image_id) {
-            // Validate attachment exists and is an image
-            if (!wp_attachment_is_image($image_id)) {
-                continue;
-            }
-            
-            $img = wp_get_attachment_image($image_id, 'large');
-            if ($img) {
-                $output .= '<div class="oa-tfp-product-gallery-item">' . $img . '</div>';
-            }
-        }
+        $output .= $gallery_items_html;
         $output .= '</div>';
 
         if ($has_scroll) {
