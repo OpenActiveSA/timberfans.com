@@ -386,6 +386,16 @@
     margin: 0 !important;
 }
 
+/* Default owl arrows sit at -70px and get clipped by .site / #page overflow-x.
+   Keep them inside the ~40px content gutter on desktop. */
+.oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-prev {
+    left: -40px;
+}
+
+.oa-featured-carousel-wrap .owl-carousel .owl-nav .owl-next {
+    right: -40px;
+}
+
 /* ==========================================================================
    LOGO CAROUSEL
    ========================================================================== */
